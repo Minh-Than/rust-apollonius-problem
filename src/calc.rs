@@ -1,5 +1,4 @@
 use core::f32;
-use std::f32::consts::PI;
 
 use eframe::egui;
 use egui::{Color32, Pos2, Stroke, epaint::CircleShape};

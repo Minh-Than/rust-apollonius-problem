@@ -309,9 +309,9 @@ pub fn central_panel(ctx: &Context, app: &mut MyApp) {
                         inv_pole_set_2.s3.1,
                     ),
                     c2: get_circle_3_points(
-                        inv_pole_set_2.s1.0,
-                        inv_pole_set_2.s2.0,
-                        inv_pole_set_2.s3.1,
+                        inv_pole_set_2.s1.1,
+                        inv_pole_set_2.s2.1,
+                        inv_pole_set_2.s3.0,
                     ),
                 };
                 let apollonius_pair_3: ApolloniusCirclesPair = ApolloniusCirclesPair {
