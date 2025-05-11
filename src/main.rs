@@ -31,9 +31,7 @@ fn main() -> eframe::Result {
 
 impl eframe::App for MyApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        let mut copy: MyApp =  self.clone();
-        top_panel(ctx, &mut copy);
-        central_panel(ctx, &mut copy);
-        *self = copy.clone();
+        top_panel(ctx, self);
+        central_panel(ctx, self);
     }
 }
