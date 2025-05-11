@@ -135,7 +135,7 @@ fn get_circles_intersection_as_straight_line(c1: CircleShape, c2: CircleShape) -
     let x1 = c1.center.x;
     let y1 = c1.center.y;
     let r1 = c1.radius;
-    let x2 = c1.center.x;
+    let x2 = c2.center.x;
     let y2 = c2.center.y;
     let r2 = c2.radius;
 
