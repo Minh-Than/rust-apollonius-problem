@@ -10,3 +10,4 @@ Trying to rewrite an existing Java project of mine in Rust to learn `egui`. Curr
 - [ ] Add scaling capability for the 3 circles
 - [ ] Change colors of some shapes (3 given circles, homothetic centers) upon different theme
 - [ ] Cleaning and refactoring logics in `central_panel` if possible
+- [ ] Figure out logic of finding and toggling filter on the non-Apollonius circles (tangental to circles but not outside)
