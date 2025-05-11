@@ -13,16 +13,16 @@ pub fn top_panel(ctx: &Context, app: &mut MyApp) {
             ui.checkbox(&mut app.show_apollonius_circle_2, "A2");
             ui.checkbox(&mut app.show_apollonius_circle_3, "A3");
             ui.checkbox(&mut app.show_apollonius_circle_4, "A4");
-            if ui.button("Reset").clicked() { 
+            if ui.button("Reset").clicked() {
                 *app = MyApp::reset();
                 ctx.request_repaint();
             }
-            let mut theme =
-                egui_extras::syntax_highlighting::CodeTheme::from_memory(ui.ctx(), ui.style());
-            ui.collapsing("Theme", |ui| {
-                theme.ui(ui);
-                theme.store_in_memory(ui.ctx());
-            });
+            // let mut theme =
+            //     egui_extras::syntax_highlighting::CodeTheme::from_memory(ui.ctx(), ui.style());
+            // ui.collapsing("Theme", |ui| {
+            //     theme.ui(ui);
+            //     theme.store_in_memory(ui.ctx());
+            // });
         })
     });
 }
