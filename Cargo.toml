@@ -1,0 +1,11 @@
+[package]
+name = "egui_example"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+eframe = "0.31.1"
+egui = "0.31.1"
+egui_extras = "0.31.1"
+env_logger = "0.11.8"
+
