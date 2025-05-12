@@ -1,4 +1,4 @@
-use egui::{Color32, Context, Pos2, Rect, Shape, Stroke, Ui, epaint::CircleShape};
+use egui::{Color32, Context, Pos2, Rect, Response, Shape, Stroke, Ui, epaint::CircleShape};
 
 use crate::{
     MyApp,
@@ -69,85 +69,57 @@ pub fn central_panel(ctx: &Context, app: &mut MyApp) {
             .show(ui, &mut app.scene_rect, |ui: &mut Ui| {
                 inner_rect = ui.min_rect();
 
-                // Circle 1
-                let response_circle_1 = ui.allocate_rect(
-                    get_circle_clipping_cect(app.circle_1),
-                    egui::Sense::click_and_drag(),
-                );
-                if response_circle_1.drag_started() {
-                    let mut distance: f32 = f32::INFINITY;
-                    // let mut point_click: Pos2 = Pos2 { x: f32::INFINITY, y: f32::INFINITY };
-                    match response_circle_1.interact_pointer_pos() {
-                        None => (),
-                        Some(p) => {
-                            // point_click = p.clone();
-                            distance = p.distance(app.circle_1.center);
+                // Clipping rect bounding all 3 circles for handing indiviual circle dragging
+                // TODO: make circles scalable
+                let union_3_circles_clipping_rect = get_circle_clipping_rect(app.circle_1)
+                    .union(get_circle_clipping_rect(app.circle_2))
+                    .union(get_circle_clipping_rect(app.circle_3));
+
+                let response_circles =
+                    ui.allocate_rect(union_3_circles_clipping_rect, egui::Sense::click_and_drag());
+
+                if response_circles.drag_started() {
+                    let mut closest: Option<Dragging> = None;
+                    let mut min_distance = f32::INFINITY;
+
+                    match response_circles.interact_pointer_pos() {
+                        Some(pos) => {
+                            for (dragging, circle) in [
+                                (Dragging::Circle1, &app.circle_1),
+                                (Dragging::Circle2, &app.circle_2),
+                                (Dragging::Circle3, &app.circle_3),
+                            ] {
+                                let dist = pos.distance(circle.center);
+                                if dist < circle.radius && dist < min_distance {
+                                    min_distance = dist;
+                                    closest = Some(dragging);
+                                }
+                            }
+                            if let Some(dragging) = closest {
+                                app.is_dragging = dragging;
+                            }
                         }
+                        _ => (),
                     }
-                    if distance < app.circle_1.radius {
-                        // && get_closest_circle(app.circle_1, app.circle_2, app.circle_3, point_click) == Dragging::Circle1 {
-                        app.is_dragging = Dragging::Circle1;
-                    }
-                }
-                if response_circle_1.dragged() && app.is_dragging == Dragging::Circle1 {
-                    app.circle_1.center += response_circle_1.drag_delta()
-                }
-                if response_circle_1.drag_stopped() && app.is_dragging == Dragging::Circle1 {
-                    app.is_dragging = Dragging::None;
                 }
 
-                // Circle 2
-                let response_circle_2 = ui.allocate_rect(
-                    get_circle_clipping_cect(app.circle_2),
-                    egui::Sense::click_and_drag(),
-                );
-                if response_circle_2.drag_started() {
-                    let mut distance: f32 = f32::INFINITY;
-                    // let mut point_click: Pos2 = Pos2 { x: f32::INFINITY, y: f32::INFINITY };
-                    match response_circle_2.interact_pointer_pos() {
-                        None => (),
-                        Some(p) => {
-                            // point_click = p.clone();
-                            distance = p.distance(app.circle_2.center)
-                        }
-                    }
-                    if distance < app.circle_2.radius {
-                        // && get_closest_circle(app.circle_1, app.circle_2, app.circle_3, point_click) == Dragging::Circle2 {
-                        app.is_dragging = Dragging::Circle2;
-                    }
-                }
-                if response_circle_2.dragged() && app.is_dragging == Dragging::Circle2 {
-                    app.circle_2.center += response_circle_2.drag_delta()
-                }
-                if response_circle_2.drag_stopped() && app.is_dragging == Dragging::Circle2 {
-                    app.is_dragging = Dragging::None;
-                }
-
-                // Circle 3
-                let response_circle_3 = ui.allocate_rect(
-                    get_circle_clipping_cect(app.circle_3),
-                    egui::Sense::click_and_drag(),
-                );
-                if response_circle_3.drag_started() {
-                    let mut distance: f32 = f32::INFINITY;
-                    // let mut point_click: Pos2 = Pos2 { x: f32::INFINITY, y: f32::INFINITY };
-                    match response_circle_3.interact_pointer_pos() {
-                        None => (),
-                        Some(p) => {
-                            // point_click = p.clone();
-                            distance = p.distance(app.circle_3.center)
-                        }
-                    }
-                    if distance < app.circle_3.radius {
-                        // && get_closest_circle(app.circle_1, app.circle_2, app.circle_3, point_click) == Dragging::Circle3 {
-                        app.is_dragging = Dragging::Circle3;
-                    }
-                }
-                if response_circle_3.dragged() && app.is_dragging == Dragging::Circle3 {
-                    app.circle_3.center += response_circle_3.drag_delta()
-                }
-                if response_circle_3.drag_stopped() && app.is_dragging == Dragging::Circle3 {
-                    app.is_dragging = Dragging::None;
+                match app.is_dragging {
+                    Dragging::Circle1 => handle_circle_drag(
+                        response_circles,
+                        &mut app.is_dragging,
+                        &mut app.circle_1,
+                    ),
+                    Dragging::Circle2 => handle_circle_drag(
+                        response_circles,
+                        &mut app.is_dragging,
+                        &mut app.circle_2,
+                    ),
+                    Dragging::Circle3 => handle_circle_drag(
+                        response_circles,
+                        &mut app.is_dragging,
+                        &mut app.circle_3,
+                    ),
+                    _ => (),
                 }
 
                 // Homothetic centers
@@ -386,7 +358,7 @@ pub fn central_panel(ctx: &Context, app: &mut MyApp) {
     });
 }
 
-fn get_circle_clipping_cect(c: CircleShape) -> Rect {
+fn get_circle_clipping_rect(c: CircleShape) -> Rect {
     Rect {
         min: Pos2 {
             x: c.center.x - c.radius,
@@ -396,6 +368,15 @@ fn get_circle_clipping_cect(c: CircleShape) -> Rect {
             x: c.center.x + c.radius,
             y: c.center.y + c.radius,
         },
+    }
+}
+
+fn handle_circle_drag(response: Response, is_dragging: &mut Dragging, c: &mut CircleShape) {
+    if response.dragged() {
+        c.center += response.drag_delta();
+    }
+    if response.drag_stopped() {
+        *is_dragging = Dragging::None;
     }
 }
 
