@@ -71,6 +71,7 @@ pub fn central_panel(ctx: &Context, app: &mut MyApp) {
 
                 // Clipping rect bounding all 3 circles for handing indiviual circle dragging
                 // TODO: make circles scalable
+
                 let union_3_circles_clipping_rect = get_circle_clipping_rect(app.circle_1)
                     .union(get_circle_clipping_rect(app.circle_2))
                     .union(get_circle_clipping_rect(app.circle_3));
@@ -119,7 +120,16 @@ pub fn central_panel(ctx: &Context, app: &mut MyApp) {
                         &mut app.is_dragging,
                         &mut app.circle_3,
                     ),
-                    _ => (),
+                    Dragging::None => {
+                        if response_circles.dragged() {
+                            app.circle_1.center += response_circles.drag_delta();
+                            app.circle_2.center += response_circles.drag_delta();
+                            app.circle_3.center += response_circles.drag_delta();
+                        }
+                        if response_circles.drag_stopped() {
+                            app.is_dragging = Dragging::None;
+                        }
+                    }
                 }
 
                 // Homothetic centers
