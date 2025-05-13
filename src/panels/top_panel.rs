@@ -3,7 +3,7 @@ use egui::{Context, Style};
 use crate::{enums::theme_mode::ThemeMode, models::app::MyApp};
 
 pub fn top_panel(app: &mut MyApp, ctx: &Context) {
-    egui::TopBottomPanel::top("control_panel").show(ctx, |ui| {
+    egui::TopBottomPanel::top("top_control_panel").show(ctx, |ui| {
         ui.horizontal_wrapped(|ui| {
             ui.checkbox(&mut app.show_homothetic, "Homothetic centers");
             ui.checkbox(&mut app.show_radical, "Radical center");

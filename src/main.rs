@@ -4,7 +4,7 @@
 use eframe::egui;
 use egui::{Style, Vec2};
 use models::app::MyApp;
-use panels::{central_panel::central_panel, top_panel::top_panel};
+use panels::{bottom_panel::bottom_panel, central_panel::central_panel, top_panel::top_panel};
 
 mod calc;
 mod enums;
@@ -50,6 +50,7 @@ impl eframe::App for MyApp {
             }
         };
         top_panel(self, ctx);
+        bottom_panel(self, ctx);
         central_panel(self, ctx);
     }
 }
