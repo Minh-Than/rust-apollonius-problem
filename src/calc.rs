@@ -1,25 +1,25 @@
 use core::f32;
 
 use eframe::egui;
-use egui::{Color32, Pos2, Stroke, epaint::CircleShape};
+use egui::Pos2;
 
-use crate::models::{segment::Segment, straightline::StraightLine};
+use crate::models::{circle::Circle, segment::Segment, straightline::StraightLine};
 
-pub fn get_external_homothetic_center(c1: CircleShape, c2: CircleShape) -> Pos2 {
+pub fn get_external_homothetic_center(c1: Circle, c2: Circle) -> Pos2 {
     let x = (c2.radius * c1.center.x - c1.radius * c2.center.x) / (c2.radius - c1.radius);
     let y = (c2.radius * c1.center.y - c1.radius * c2.center.y) / (c2.radius - c1.radius);
 
     Pos2 { x, y }
 }
 
-pub fn get_internal_homothetic_center(c1: CircleShape, c2: CircleShape) -> Pos2 {
+pub fn get_internal_homothetic_center(c1: Circle, c2: Circle) -> Pos2 {
     let x = (c2.radius * c1.center.x + c1.radius * c2.center.x) / (c2.radius + c1.radius);
     let y = (c2.radius * c1.center.y + c1.radius * c2.center.y) / (c2.radius + c1.radius);
 
     Pos2 { x, y }
 }
 
-pub fn get_radical_axis(c1: CircleShape, c2: CircleShape) -> StraightLine {
+pub fn get_radical_axis(c1: Circle, c2: Circle) -> StraightLine {
     let a: f32 = 2.0 * (c2.center.x - c1.center.x);
     let b: f32 = 2.0 * (c2.center.y - c1.center.y);
     let c: f32 = (c1.center.x.powi(2) + c1.center.y.powi(2) - c1.radius.powi(2))
@@ -28,10 +28,10 @@ pub fn get_radical_axis(c1: CircleShape, c2: CircleShape) -> StraightLine {
     StraightLine { a, b, c }
 }
 
-pub fn get_inverse_pole(s: &Segment, c: CircleShape) -> Pos2 {
-    if is_segment_intersecting_circle(&s, c) {
+pub fn get_inverse_pole(s: &Segment, c: Circle) -> Pos2 {
+    if is_segment_intersecting_circle(&s, &c) {
         let intersecting_segment: Segment =
-            get_circle_straight_line_intersection(&s.as_straight_line(), c);
+            get_circle_straight_line_intersection(&s.as_straight_line(), &c);
         let dx = intersecting_segment.0.x - c.center.x;
         let dy = intersecting_segment.0.y - c.center.y;
 
@@ -59,13 +59,11 @@ pub fn get_inverse_pole(s: &Segment, c: CircleShape) -> Pos2 {
         let polar_projection_segment: Segment =
             Segment(c.center, find_projection(&s.as_straight_line(), c.center));
         let projection_midpoint: Pos2 = mid_point(&polar_projection_segment);
-        let compass_circle: CircleShape = CircleShape {
+        let compass_circle: Circle = Circle {
             center: projection_midpoint,
             radius: projection_midpoint.distance(c.center),
-            fill: Color32::PLACEHOLDER,
-            stroke: Stroke::NONE,
         };
-        let intersection = get_circles_intersection(compass_circle, c);
+        let intersection = get_circles_intersection(&compass_circle, &c);
 
         find_intersection(
             &polar_projection_segment.as_straight_line(),
@@ -74,7 +72,7 @@ pub fn get_inverse_pole(s: &Segment, c: CircleShape) -> Pos2 {
     }
 }
 
-pub fn get_circle_3_points(p1: Pos2, p2: Pos2, p3: Pos2) -> Option<CircleShape> {
+pub fn get_circle_3_points(p1: Pos2, p2: Pos2, p3: Pos2) -> Option<Circle> {
     let s1: Segment = Segment(p1, p2);
     let s2: Segment = Segment(p2, p3);
     let s3: Segment = Segment(p3, p1);
@@ -126,11 +124,9 @@ pub fn get_circle_3_points(p1: Pos2, p2: Pos2, p3: Pos2) -> Option<CircleShape> 
     let l1: StraightLine = orthoganalize(&s1.as_straight_line(), orth_1);
     let l2: StraightLine = orthoganalize(&s2.as_straight_line(), orth_2);
     let intersection: Pos2 = find_intersection(&l1, &l2);
-    Some(CircleShape {
+    Some(Circle {
         center: intersection,
         radius: p1.distance(intersection),
-        fill: Color32::PLACEHOLDER,
-        stroke: Stroke::NONE,
     })
 }
 
@@ -232,7 +228,7 @@ pub fn find_intersection(l1: &StraightLine, l2: &StraightLine) -> Pos2 {
     }
 }
 
-pub fn is_segment_intersecting_circle(s: &Segment, c: CircleShape) -> bool {
+pub fn is_segment_intersecting_circle(s: &Segment, c: &Circle) -> bool {
     c.radius >= calculate_distance(&s.as_straight_line(), c.center)
 }
 
@@ -240,7 +236,7 @@ pub fn calculate_distance(l: &StraightLine, p: Pos2) -> f32 {
     ((l.a * p.x + l.b * p.y + l.c) / (l.a.powi(2) + l.b.powi(2)).sqrt()).abs()
 }
 
-pub fn get_circle_straight_line_intersection(l: &StraightLine, c: CircleShape) -> Segment {
+pub fn get_circle_straight_line_intersection(l: &StraightLine, c: &Circle) -> Segment {
     let projection: Pos2 = find_projection(l, c.center);
     let length_a = calculate_distance(l, c.center);
     let length_b = (c.radius.powi(2) - length_a.powi(2)).sqrt();
@@ -258,7 +254,7 @@ pub fn get_circle_straight_line_intersection(l: &StraightLine, c: CircleShape) -
     )
 }
 
-pub fn get_circles_intersection(c1: CircleShape, c2: CircleShape) -> Segment {
+pub fn get_circles_intersection(c1: &Circle, c2: &Circle) -> Segment {
     let t0: StraightLine = get_circles_intersection_as_straight_line(c1, c2);
     let t1: StraightLine = StraightLine {
         a: c2.center.y - c1.center.y,
@@ -283,7 +279,7 @@ pub fn get_circles_intersection(c1: CircleShape, c2: CircleShape) -> Segment {
     )
 }
 
-fn get_circles_intersection_as_straight_line(c1: CircleShape, c2: CircleShape) -> StraightLine {
+fn get_circles_intersection_as_straight_line(c1: &Circle, c2: &Circle) -> StraightLine {
     let x1 = c1.center.x;
     let y1 = c1.center.y;
     let r1 = c1.radius;

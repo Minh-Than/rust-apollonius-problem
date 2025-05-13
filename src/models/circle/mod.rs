@@ -1,6 +1,7 @@
 use egui::Pos2;
 
+#[derive(Clone, Copy)]
 pub struct Circle {
-    center: Pos2,
-    radius: f32,
+    pub center: Pos2,
+    pub radius: f32,
 }

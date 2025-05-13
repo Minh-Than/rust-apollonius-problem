@@ -4,7 +4,7 @@ use crate::{
     MyApp,
     calc::{self, get_circle_3_points},
     enums::{color_item_names::ColorItemNames, dragging::Dragging, theme_mode::ThemeMode},
-    models::{segment::Segment, straightline::StraightLine},
+    models::{circle::Circle, segment::Segment, straightline::StraightLine},
     theme_handler,
 };
 
@@ -48,13 +48,13 @@ impl IntoIterator for InversePoleSet {
 
 #[derive(Clone, Copy)]
 struct ApolloniusCirclesPair {
-    c1: Option<CircleShape>,
-    c2: Option<CircleShape>,
+    c1: Option<Circle>,
+    c2: Option<Circle>,
 }
 impl IntoIterator for ApolloniusCirclesPair {
-    type Item = Option<CircleShape>;
+    type Item = Option<Circle>;
 
-    type IntoIter = std::array::IntoIter<Option<CircleShape>, 2>;
+    type IntoIter = std::array::IntoIter<Option<Circle>, 2>;
 
     fn into_iter(self) -> Self::IntoIter {
         IntoIterator::into_iter([self.c1, self.c2])
@@ -166,7 +166,7 @@ pub fn central_panel(app: &mut MyApp, ctx: &Context) {
                             radical_center,
                         )
                         .as_straight_line(),
-                        app.circle_1,
+                        &app.circle_1,
                     ),
                     s2: calc::get_circle_straight_line_intersection(
                         &Segment(
@@ -174,7 +174,7 @@ pub fn central_panel(app: &mut MyApp, ctx: &Context) {
                             radical_center,
                         )
                         .as_straight_line(),
-                        app.circle_2,
+                        &app.circle_2,
                     ),
                     s3: calc::get_circle_straight_line_intersection(
                         &Segment(
@@ -182,7 +182,7 @@ pub fn central_panel(app: &mut MyApp, ctx: &Context) {
                             radical_center,
                         )
                         .as_straight_line(),
-                        app.circle_3,
+                        &app.circle_3,
                     ),
                 };
                 let inv_pole_set_2: InversePoleSet = InversePoleSet {
@@ -195,7 +195,7 @@ pub fn central_panel(app: &mut MyApp, ctx: &Context) {
                             radical_center,
                         )
                         .as_straight_line(),
-                        app.circle_1,
+                        &app.circle_1,
                     ),
                     s2: calc::get_circle_straight_line_intersection(
                         &Segment(
@@ -203,7 +203,7 @@ pub fn central_panel(app: &mut MyApp, ctx: &Context) {
                             radical_center,
                         )
                         .as_straight_line(),
-                        app.circle_2,
+                        &app.circle_2,
                     ),
                     s3: calc::get_circle_straight_line_intersection(
                         &Segment(
@@ -211,7 +211,7 @@ pub fn central_panel(app: &mut MyApp, ctx: &Context) {
                             radical_center,
                         )
                         .as_straight_line(),
-                        app.circle_3,
+                        &app.circle_3,
                     ),
                 };
                 let inv_pole_set_3: InversePoleSet = InversePoleSet {
@@ -224,7 +224,7 @@ pub fn central_panel(app: &mut MyApp, ctx: &Context) {
                             radical_center,
                         )
                         .as_straight_line(),
-                        app.circle_1,
+                        &app.circle_1,
                     ),
                     s2: calc::get_circle_straight_line_intersection(
                         &Segment(
@@ -232,7 +232,7 @@ pub fn central_panel(app: &mut MyApp, ctx: &Context) {
                             radical_center,
                         )
                         .as_straight_line(),
-                        app.circle_2,
+                        &app.circle_2,
                     ),
                     s3: calc::get_circle_straight_line_intersection(
                         &Segment(
@@ -240,7 +240,7 @@ pub fn central_panel(app: &mut MyApp, ctx: &Context) {
                             radical_center,
                         )
                         .as_straight_line(),
-                        app.circle_3,
+                        &app.circle_3,
                     ),
                 };
                 let inv_pole_set_4: InversePoleSet = InversePoleSet {
@@ -253,7 +253,7 @@ pub fn central_panel(app: &mut MyApp, ctx: &Context) {
                             radical_center,
                         )
                         .as_straight_line(),
-                        app.circle_1,
+                        &app.circle_1,
                     ),
                     s2: calc::get_circle_straight_line_intersection(
                         &Segment(
@@ -261,7 +261,7 @@ pub fn central_panel(app: &mut MyApp, ctx: &Context) {
                             radical_center,
                         )
                         .as_straight_line(),
-                        app.circle_2,
+                        &app.circle_2,
                     ),
                     s3: calc::get_circle_straight_line_intersection(
                         &Segment(
@@ -269,7 +269,7 @@ pub fn central_panel(app: &mut MyApp, ctx: &Context) {
                             radical_center,
                         )
                         .as_straight_line(),
-                        app.circle_3,
+                        &app.circle_3,
                     ),
                 };
 
@@ -418,7 +418,7 @@ pub fn central_panel(app: &mut MyApp, ctx: &Context) {
     });
 }
 
-fn get_circle_clipping_rect(c: CircleShape) -> Rect {
+fn get_circle_clipping_rect(c: Circle) -> Rect {
     Rect {
         min: Pos2 {
             x: c.center.x - c.radius,
@@ -431,7 +431,7 @@ fn get_circle_clipping_rect(c: CircleShape) -> Rect {
     }
 }
 
-fn handle_circle_drag(response: Response, is_dragging: &mut Dragging, c: &mut CircleShape) {
+fn handle_circle_drag(response: Response, is_dragging: &mut Dragging, c: &mut Circle) {
     if response.dragged() {
         c.center += response.drag_delta();
     }
@@ -440,7 +440,7 @@ fn handle_circle_drag(response: Response, is_dragging: &mut Dragging, c: &mut Ci
     }
 }
 
-fn draw_three_circles(ui: &mut Ui, circles: [CircleShape; 3], theme_mode: &ThemeMode) {
+fn draw_three_circles(ui: &mut Ui, circles: [Circle; 3], theme_mode: &ThemeMode) {
     for circle in circles {
         ui.painter().add(egui::Shape::Circle(CircleShape {
             center: circle.center,

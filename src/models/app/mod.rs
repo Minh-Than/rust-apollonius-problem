@@ -1,13 +1,15 @@
-use egui::{Color32, Pos2, Rect, Stroke, epaint::CircleShape};
+use egui::{Pos2, Rect};
 
 use crate::enums::{dragging::Dragging, theme_mode::ThemeMode};
+
+use super::circle::Circle;
 
 #[derive(Clone)]
 pub struct MyApp {
     pub scene_rect: egui::Rect,
-    pub circle_1: CircleShape,
-    pub circle_2: CircleShape,
-    pub circle_3: CircleShape,
+    pub circle_1: Circle,
+    pub circle_2: Circle,
+    pub circle_3: Circle,
     pub is_dragging: Dragging,
     pub show_homothetic: bool,
     pub show_radical: bool,
@@ -23,23 +25,17 @@ impl MyApp {
     pub fn reset() -> MyApp {
         MyApp {
             scene_rect: Rect::ZERO,
-            circle_1: CircleShape {
+            circle_1: Circle {
                 center: Pos2 { x: 50.0, y: 50.0 },
                 radius: 35.0,
-                fill: Color32::from_white_alpha(50),
-                stroke: Stroke::NONE,
             },
-            circle_2: CircleShape {
+            circle_2: Circle {
                 center: Pos2 { x: -60.0, y: 10.0 },
                 radius: 50.0,
-                fill: Color32::from_white_alpha(50),
-                stroke: Stroke::NONE,
             },
-            circle_3: CircleShape {
+            circle_3: Circle {
                 center: Pos2 { x: 40.0, y: -30.0 },
                 radius: 20.0,
-                fill: Color32::from_white_alpha(50),
-                stroke: Stroke::NONE,
             },
             is_dragging: Dragging::None,
             show_homothetic: false,
