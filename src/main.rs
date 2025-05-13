@@ -10,11 +10,17 @@ mod calc;
 mod enums;
 mod models;
 mod panels;
+mod theme_handler;
 
 fn main() -> eframe::Result {
-    let window_size: Vec2 = Vec2 { x: 1000.0, y: 1000.0 };
+    let window_size: Vec2 = Vec2 {
+        x: 1000.0,
+        y: 1000.0,
+    };
     let options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default().with_max_inner_size(window_size).with_min_inner_size(window_size),
+        viewport: egui::ViewportBuilder::default()
+            .with_max_inner_size(window_size)
+            .with_min_inner_size(window_size),
         ..Default::default()
     };
     eframe::run_native(
@@ -31,7 +37,7 @@ fn main() -> eframe::Result {
 
 impl eframe::App for MyApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        top_panel(ctx, self);
-        central_panel(ctx, self);
+        top_panel(self, ctx);
+        central_panel(self, ctx);
     }
 }

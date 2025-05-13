@@ -1,8 +1,8 @@
-use egui::Context;
+use egui::{Context, Style};
 
-use crate::models::app::MyApp;
+use crate::{enums::theme_mode::ThemeMode, models::app::MyApp};
 
-pub fn top_panel(ctx: &Context, app: &mut MyApp) {
+pub fn top_panel(app: &mut MyApp, ctx: &Context) {
     egui::TopBottomPanel::top("control_panel").show(ctx, |ui| {
         ui.horizontal_wrapped(|ui| {
             ui.checkbox(&mut app.show_homothetic, "Homothetic centers");
@@ -17,12 +17,26 @@ pub fn top_panel(ctx: &Context, app: &mut MyApp) {
                 *app = MyApp::reset();
                 ctx.request_repaint();
             }
-            // let mut theme =
-            //     egui_extras::syntax_highlighting::CodeTheme::from_memory(ui.ctx(), ui.style());
-            // ui.collapsing("Theme", |ui| {
-            //     theme.ui(ui);
-            //     theme.store_in_memory(ui.ctx());
-            // });
-        })
+            egui::ComboBox::from_label("Theme")
+                .selected_text(format!("{:?}", app.theme_mode))
+                .show_ui(ui, |ui| {
+                    if ui
+                        .selectable_value(&mut app.theme_mode, ThemeMode::Light, "Light")
+                        .clicked()
+                    {
+                        let mut style: Style = (*ctx.style()).clone();
+                        style.visuals = egui::Visuals::light();
+                        ctx.set_style(style);
+                    }
+                    if ui
+                        .selectable_value(&mut app.theme_mode, ThemeMode::Dark, "Dark")
+                        .clicked()
+                    {
+                        let mut style: Style = (*ctx.style()).clone();
+                        style.visuals = egui::Visuals::dark();
+                        ctx.set_style(style);
+                    }
+                });
+        });
     });
 }

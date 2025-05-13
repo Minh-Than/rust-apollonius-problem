@@ -3,8 +3,9 @@ use egui::{Color32, Context, Pos2, Rect, Response, Shape, Stroke, Ui, epaint::Ci
 use crate::{
     MyApp,
     calc::{self, get_circle_3_points},
-    enums::dragging::Dragging,
+    enums::{color_item_names::ColorItemNames, dragging::Dragging, theme_mode::ThemeMode},
     models::{segment::Segment, straightline::StraightLine},
+    theme_handler,
 };
 
 #[derive(Clone)]
@@ -60,7 +61,7 @@ impl IntoIterator for ApolloniusCirclesPair {
     }
 }
 
-pub fn central_panel(ctx: &Context, app: &mut MyApp) {
+pub fn central_panel(app: &mut MyApp, ctx: &Context) {
     egui::CentralPanel::default().show(ctx, |ui| {
         let scene = egui::Scene::new().zoom_range(0.1..=50.0);
 
@@ -322,41 +323,90 @@ pub fn central_panel(ctx: &Context, app: &mut MyApp) {
                 };
 
                 // Drawing
-                draw_three_circles(ui, app.circle_1, app.circle_2, app.circle_3);
-                draw_homothetis_centers(ui, &homothetic_centers, app.show_homothetic);
-                draw_radical_center(ui, radical_center, app.show_radical);
-                draw_inverse_poles(ui, &inv_pole_set_1, Color32::ORANGE, app.show_inverse_poles);
-                draw_inverse_poles(ui, &inv_pole_set_2, Color32::PURPLE, app.show_inverse_poles);
-                draw_inverse_poles(ui, &inv_pole_set_3, Color32::GREEN, app.show_inverse_poles);
-                draw_inverse_poles(ui, &inv_pole_set_4, Color32::BLUE, app.show_inverse_poles);
+                draw_three_circles(
+                    ui,
+                    [app.circle_1, app.circle_2, app.circle_3],
+                    &app.theme_mode,
+                );
+                draw_homothetis_centers(
+                    ui,
+                    &homothetic_centers,
+                    app.show_homothetic,
+                    &app.theme_mode,
+                );
+                draw_radical_center(ui, radical_center, app.show_radical, &app.theme_mode);
+                draw_inverse_poles(
+                    ui,
+                    &inv_pole_set_1,
+                    theme_handler::get_color(ColorItemNames::InversePoles1, &app.theme_mode),
+                    app.show_inverse_poles,
+                );
+                draw_inverse_poles(
+                    ui,
+                    &inv_pole_set_2,
+                    theme_handler::get_color(ColorItemNames::InversePoles2, &app.theme_mode),
+                    app.show_inverse_poles,
+                );
+                draw_inverse_poles(
+                    ui,
+                    &inv_pole_set_3,
+                    theme_handler::get_color(ColorItemNames::InversePoles3, &app.theme_mode),
+                    app.show_inverse_poles,
+                );
+                draw_inverse_poles(
+                    ui,
+                    &inv_pole_set_4,
+                    theme_handler::get_color(ColorItemNames::InversePoles4, &app.theme_mode),
+                    app.show_inverse_poles,
+                );
 
-                draw_connectors(ui, &inv_pole_set_1, Color32::ORANGE, app.show_connectors);
-                draw_connectors(ui, &inv_pole_set_2, Color32::PURPLE, app.show_connectors);
-                draw_connectors(ui, &inv_pole_set_3, Color32::GREEN, app.show_connectors);
-                draw_connectors(ui, &inv_pole_set_4, Color32::BLUE, app.show_connectors);
+                draw_connectors(
+                    ui,
+                    &inv_pole_set_1,
+                    theme_handler::get_color(ColorItemNames::InversePoles1, &app.theme_mode),
+                    app.show_connectors,
+                );
+                draw_connectors(
+                    ui,
+                    &inv_pole_set_2,
+                    theme_handler::get_color(ColorItemNames::InversePoles2, &app.theme_mode),
+                    app.show_connectors,
+                );
+                draw_connectors(
+                    ui,
+                    &inv_pole_set_3,
+                    theme_handler::get_color(ColorItemNames::InversePoles3, &app.theme_mode),
+                    app.show_connectors,
+                );
+                draw_connectors(
+                    ui,
+                    &inv_pole_set_4,
+                    theme_handler::get_color(ColorItemNames::InversePoles4, &app.theme_mode),
+                    app.show_connectors,
+                );
 
                 draw_apollonius_circles_pair(
                     ui,
                     &apollonius_pair_1,
-                    Color32::ORANGE,
+                    theme_handler::get_color(ColorItemNames::InversePoles1, &app.theme_mode),
                     app.show_apollonius_circle_1,
                 );
                 draw_apollonius_circles_pair(
                     ui,
                     &apollonius_pair_2,
-                    Color32::PURPLE,
+                    theme_handler::get_color(ColorItemNames::InversePoles2, &app.theme_mode),
                     app.show_apollonius_circle_2,
                 );
                 draw_apollonius_circles_pair(
                     ui,
                     &apollonius_pair_3,
-                    Color32::GREEN,
+                    theme_handler::get_color(ColorItemNames::InversePoles3, &app.theme_mode),
                     app.show_apollonius_circle_3,
                 );
                 draw_apollonius_circles_pair(
                     ui,
                     &apollonius_pair_4,
-                    Color32::BLUE,
+                    theme_handler::get_color(ColorItemNames::InversePoles4, &app.theme_mode),
                     app.show_apollonius_circle_4,
                 );
             })
@@ -390,13 +440,23 @@ fn handle_circle_drag(response: Response, is_dragging: &mut Dragging, c: &mut Ci
     }
 }
 
-fn draw_three_circles(ui: &mut Ui, c1: CircleShape, c2: CircleShape, c3: CircleShape) {
-    ui.painter().add(egui::Shape::Circle(c1));
-    ui.painter().add(egui::Shape::Circle(c2));
-    ui.painter().add(egui::Shape::Circle(c3));
+fn draw_three_circles(ui: &mut Ui, circles: [CircleShape; 3], theme_mode: &ThemeMode) {
+    for circle in circles {
+        ui.painter().add(egui::Shape::Circle(CircleShape {
+            center: circle.center,
+            radius: circle.radius,
+            fill: theme_handler::get_color(ColorItemNames::InitialCircles, theme_mode),
+            stroke: Stroke::NONE,
+        }));
+    }
 }
 
-fn draw_homothetis_centers(ui: &mut Ui, homothetic_centers: &HomotheticCenters, condition: bool) {
+fn draw_homothetis_centers(
+    ui: &mut Ui,
+    homothetic_centers: &HomotheticCenters,
+    condition: bool,
+    theme_mode: &ThemeMode,
+) {
     if !condition {
         return;
     }
@@ -404,20 +464,20 @@ fn draw_homothetis_centers(ui: &mut Ui, homothetic_centers: &HomotheticCenters, 
         ui.painter().add(egui::Shape::Circle(CircleShape {
             center,
             radius: 2.0,
-            fill: Color32::WHITE,
+            fill: theme_handler::get_color(ColorItemNames::HomotheticCenters, theme_mode),
             stroke: Stroke::NONE,
         }));
     }
 }
 
-fn draw_radical_center(ui: &mut Ui, radical_center: Pos2, condition: bool) {
+fn draw_radical_center(ui: &mut Ui, radical_center: Pos2, condition: bool, theme_mode: &ThemeMode) {
     if !condition {
         return;
     }
     ui.painter().add(egui::Shape::Circle(CircleShape {
         center: radical_center,
         radius: 4.0,
-        fill: Color32::KHAKI,
+        fill: theme_handler::get_color(ColorItemNames::Radical, theme_mode),
         stroke: Stroke::NONE,
     }));
 }
@@ -446,27 +506,15 @@ fn draw_connectors(
         return;
     }
 
-    ui.painter().add(Shape::LineSegment {
-        points: [poles_set.s1.0, poles_set.s1.1],
-        stroke: Stroke {
-            width: 1.0,
-            color: stroke_color,
-        },
-    });
-    ui.painter().add(Shape::LineSegment {
-        points: [poles_set.s2.0, poles_set.s2.1],
-        stroke: Stroke {
-            width: 1.0,
-            color: stroke_color,
-        },
-    });
-    ui.painter().add(Shape::LineSegment {
-        points: [poles_set.s3.0, poles_set.s3.1],
-        stroke: Stroke {
-            width: 1.0,
-            color: stroke_color,
-        },
-    });
+    for segment in [poles_set.s1, poles_set.s2, poles_set.s3] {
+        ui.painter().add(Shape::LineSegment {
+            points: [segment.0, segment.1],
+            stroke: Stroke {
+                width: 1.0,
+                color: stroke_color,
+            },
+        });
+    }
 }
 
 fn draw_apollonius_circles_pair(

@@ -1,6 +1,6 @@
-use egui::{epaint::CircleShape, Color32, Pos2, Rect, Stroke};
+use egui::{Color32, Pos2, Rect, Stroke, epaint::CircleShape};
 
-use crate::enums::dragging::Dragging;
+use crate::enums::{dragging::Dragging, theme_mode::ThemeMode};
 
 #[derive(Clone)]
 pub struct MyApp {
@@ -17,14 +17,30 @@ pub struct MyApp {
     pub show_apollonius_circle_2: bool,
     pub show_apollonius_circle_3: bool,
     pub show_apollonius_circle_4: bool,
+    pub theme_mode: ThemeMode,
 }
 impl MyApp {
     pub fn reset() -> MyApp {
         MyApp {
             scene_rect: Rect::ZERO,
-            circle_1: CircleShape { center: Pos2 { x: 50.0, y: 50.0 }, radius: 35.0, fill: Color32::from_white_alpha(50), stroke: Stroke::NONE },
-            circle_2: CircleShape { center: Pos2 { x: -60.0, y: 10.0 }, radius: 50.0, fill: Color32::from_white_alpha(50), stroke: Stroke::NONE },
-            circle_3: CircleShape { center: Pos2 { x: 40.0, y: -30.0 }, radius: 20.0, fill: Color32::from_white_alpha(50), stroke: Stroke::NONE },
+            circle_1: CircleShape {
+                center: Pos2 { x: 50.0, y: 50.0 },
+                radius: 35.0,
+                fill: Color32::from_white_alpha(50),
+                stroke: Stroke::NONE,
+            },
+            circle_2: CircleShape {
+                center: Pos2 { x: -60.0, y: 10.0 },
+                radius: 50.0,
+                fill: Color32::from_white_alpha(50),
+                stroke: Stroke::NONE,
+            },
+            circle_3: CircleShape {
+                center: Pos2 { x: 40.0, y: -30.0 },
+                radius: 20.0,
+                fill: Color32::from_white_alpha(50),
+                stroke: Stroke::NONE,
+            },
             is_dragging: Dragging::None,
             show_homothetic: false,
             show_radical: true,
@@ -34,10 +50,12 @@ impl MyApp {
             show_apollonius_circle_2: true,
             show_apollonius_circle_3: true,
             show_apollonius_circle_4: true,
+            theme_mode: ThemeMode::Dark,
         }
     }
 }
 impl Default for MyApp {
-    fn default() -> Self { Self::reset() }
+    fn default() -> Self {
+        Self::reset()
+    }
 }
-
