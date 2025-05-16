@@ -22,7 +22,7 @@ pub struct MyApp {
     pub theme_mode: ThemeMode,
 }
 impl MyApp {
-    pub fn reset() -> MyApp {
+    fn reset() -> MyApp {
         MyApp {
             scene_rect: Rect::ZERO,
             circle_1: Circle {
@@ -47,6 +47,30 @@ impl MyApp {
             show_apollonius_circle_3: true,
             show_apollonius_circle_4: true,
             theme_mode: ThemeMode::Dark,
+        }
+    }
+
+    pub fn reset_scene(&self) -> MyApp {
+        MyApp {
+            scene_rect: Rect::ZERO,
+            ..*self
+        }
+    }
+    pub fn reset_circles(&self) -> MyApp {
+        MyApp {
+            circle_1: Circle {
+                center: Pos2 { x: 50.0, y: 50.0 },
+                radius: 35.0,
+            },
+            circle_2: Circle {
+                center: Pos2 { x: -60.0, y: 10.0 },
+                radius: 50.0,
+            },
+            circle_3: Circle {
+                center: Pos2 { x: 40.0, y: -30.0 },
+                radius: 20.0,
+            },
+            ..*self
         }
     }
 }

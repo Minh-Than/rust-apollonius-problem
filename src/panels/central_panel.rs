@@ -533,7 +533,7 @@ fn draw_apollonius_circles_pair(
                 center: c.center,
                 radius: c.radius,
                 fill: Color32::TRANSPARENT,
-                stroke: Stroke::new(1.0, stroke),
+                stroke: Stroke::new(0.5, stroke),
             }));
         }
     }
