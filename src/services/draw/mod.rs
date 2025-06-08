@@ -29,20 +29,15 @@ pub fn draw_homothetis_centers(
     if !condition {
         return;
     }
-    for center in homothetic_centers.into_iter() {
-        match center {
-            Some(c) => {
-                ui.painter().add(egui::Shape::Circle(CircleShape {
-                    center: c,
-                    radius: 2.0,
-                    fill: services::theme::get_color(ColorItemNames::HomotheticCenters, theme_mode),
-                    stroke: egui::Stroke::NONE,
-                }));
-            }
-            None => (),
-        }
+    for center in homothetic_centers.into_iter().flatten() {
+        ui.painter().add(egui::Shape::Circle(CircleShape {
+            center,
+            radius: 2.0,
+            fill: services::theme::get_color(ColorItemNames::HomotheticCenters, theme_mode),
+            stroke: egui::Stroke::NONE,
+        }));
     }
-}   
+}
 
 pub fn draw_radical_center(
     ui: &mut egui::Ui,
@@ -71,23 +66,15 @@ pub fn draw_inverse_poles(
         return;
     }
 
-    match poles_set {
-        Some(set) => {
-            for pole in [set.p1, set.p2, set.p3] {
-                match pole {
-                    Some(p) => {
-                        ui.painter().add(egui::Shape::Circle(CircleShape {
-                            center: p,
-                            radius: 2.0,
-                            fill,
-                            stroke: egui::Stroke::NONE,
-                        }));
-                    }
-                    None => (),
-                }
-            }
+    if let Some(set) = poles_set {
+        for pole in [set.p1, set.p2, set.p3].into_iter().flatten() {
+            ui.painter().add(egui::Shape::Circle(CircleShape {
+                center: pole,
+                radius: 2.0,
+                fill,
+                stroke: egui::Stroke::NONE,
+            }));
         }
-        None => (),
     }
 }
 
@@ -101,24 +88,16 @@ pub fn draw_connectors(
         return;
     }
 
-    match poles_set {
-        Some(set) => {
-            for segment in [set.s1, set.s2, set.s3] {
-                match segment {
-                    Some(sgm) => {
-                        ui.painter().add(egui::Shape::LineSegment {
-                            points: [sgm.0, sgm.1],
-                            stroke: egui::Stroke {
-                                width: 0.7,
-                                color: stroke_color,
-                            },
-                        });
-                    }
-                    None => (),
-                }
-            }
+    if let Some(set) = poles_set {
+        for segment in [set.s1, set.s2, set.s3].into_iter().flatten() {
+            ui.painter().add(egui::Shape::LineSegment {
+                points: [segment.0, segment.1],
+                stroke: egui::Stroke {
+                    width: 0.7,
+                    color: stroke_color,
+                },
+            });
         }
-        None => (),
     }
 }
 
@@ -132,14 +111,12 @@ pub fn draw_apollonius_circles_pair(
         return;
     }
 
-    for circle in circle_pair.into_iter() {
-        if let Some(c) = circle {
-            ui.painter().add(egui::Shape::Circle(CircleShape {
-                center: c.center,
-                radius: c.radius,
-                fill: egui::Color32::TRANSPARENT,
-                stroke: egui::Stroke::new(0.5, stroke),
-            }));
-        }
+    for circle in circle_pair.into_iter().flatten() {
+        ui.painter().add(egui::Shape::Circle(CircleShape {
+            center: circle.center,
+            radius: circle.radius,
+            fill: egui::Color32::TRANSPARENT,
+            stroke: egui::Stroke::new(0.5, stroke),
+        }));
     }
 }

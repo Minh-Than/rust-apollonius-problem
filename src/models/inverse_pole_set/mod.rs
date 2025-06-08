@@ -13,7 +13,7 @@ pub struct InversePoleSet {
     pub s3: Option<Segment>,
 }
 impl InversePoleSet {
-    pub fn new(line: Option<Segment>, circles: &Vec<Circle>, radical_center: Pos2) -> Option<Self> {
+    pub fn new(line: Option<Segment>, circles: &[Circle], radical_center: Pos2) -> Option<Self> {
         let p1 = services::calc::get_inverse_pole(&line, circles[0]);
         let p2 = services::calc::get_inverse_pole(&line, circles[1]);
         let p3 = services::calc::get_inverse_pole(&line, circles[2]);

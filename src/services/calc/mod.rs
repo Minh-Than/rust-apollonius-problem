@@ -225,15 +225,8 @@ pub fn angle(s1: &Segment, s2: &Segment) -> f32 {
         y: s2.1.y,
     };
 
-    let angle_1: f32 = match angle_of_vector(a, b) {
-        Some(value) => value,
-        None => -10000.0,
-    };
-
-    let angle_2: f32 = match angle_of_vector(c, d) {
-        Some(value) => value,
-        None => -10000.0,
-    };
+    let angle_1: f32 = angle_of_vector(a, b).unwrap_or(-10000.0);
+    let angle_2: f32 = angle_of_vector(c, d).unwrap_or(-10000.0);
 
     angle_between_0_360(angle_2 - angle_1)
 }

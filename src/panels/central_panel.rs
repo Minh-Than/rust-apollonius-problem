@@ -30,24 +30,21 @@ pub fn get(app: &mut MyApp, ctx: &egui::Context) {
                     let mut closest: Option<Dragging> = None;
                     let mut min_distance = f32::INFINITY;
 
-                    match response_circles.interact_pointer_pos() {
-                        Some(pos) => {
-                            for (dragging, circle) in [
-                                (Dragging::Circle1, &app.circle_1),
-                                (Dragging::Circle2, &app.circle_2),
-                                (Dragging::Circle3, &app.circle_3),
-                            ] {
-                                let dist = pos.distance(circle.center);
-                                if dist < circle.radius && dist < min_distance {
-                                    min_distance = dist;
-                                    closest = Some(dragging);
-                                }
-                            }
-                            if let Some(dragging) = closest {
-                                app.is_dragging = dragging;
+                    if let Some(pos) = response_circles.interact_pointer_pos() {
+                        for (dragging, circle) in [
+                            (Dragging::Circle1, &app.circle_1),
+                            (Dragging::Circle2, &app.circle_2),
+                            (Dragging::Circle3, &app.circle_3),
+                        ] {
+                            let dist = pos.distance(circle.center);
+                            if dist < circle.radius && dist < min_distance {
+                                min_distance = dist;
+                                closest = Some(dragging);
                             }
                         }
-                        _ => (),
+                        if let Some(dragging) = closest {
+                            app.is_dragging = dragging;
+                        }
                     }
                 }
 
