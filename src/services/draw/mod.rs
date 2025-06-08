@@ -4,7 +4,7 @@ use crate::{
     enums::{color_item_names::ColorItemNames, theme_mode::ThemeMode},
     models::{
         apollonius_pair::ApolloniusPair, circle::Circle, homothetic_centers::HomotheticCenters,
-        inverse_pole_set::InversePoleSet,
+        inverse_pole_set::InversePoleSet, segment::Segment,
     },
     services,
 };
@@ -42,7 +42,7 @@ pub fn draw_homothetis_centers(
             None => (),
         }
     }
-}
+}   
 
 pub fn draw_radical_center(
     ui: &mut egui::Ui,

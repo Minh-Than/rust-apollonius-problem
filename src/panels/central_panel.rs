@@ -20,8 +20,6 @@ pub fn get(app: &mut MyApp, ctx: &egui::Context) {
                 inner_rect = ui.min_rect();
 
                 // Clipping rect bounding all 3 circles for handing indiviual circle dragging
-                // TODO: make circles scalable
-
                 let union_3_circles_clipping_rect = get_circle_clipping_rect(app.circle_1)
                     .union(get_circle_clipping_rect(app.circle_2))
                     .union(get_circle_clipping_rect(app.circle_3));
@@ -111,22 +109,22 @@ pub fn get(app: &mut MyApp, ctx: &egui::Context) {
                         sorted_circles[0],
                     ),
                 };
-                let line_1: Option<Segment> = Segment::get_any_valid_segment(&vec![
+                let line_1: Option<Segment> = Segment::get_any_valid_segment(vec![
                     homothetic_centers.ex_31,
                     homothetic_centers.ex_23,
                     homothetic_centers.ex_12,
                 ]);
-                let line_2: Option<Segment> = Segment::get_any_valid_segment(&vec![
+                let line_2: Option<Segment> = Segment::get_any_valid_segment(vec![
                     homothetic_centers.ex_12,
                     homothetic_centers.in_31,
                     homothetic_centers.in_23,
                 ]);
-                let line_3: Option<Segment> = Segment::get_any_valid_segment(&vec![
+                let line_3: Option<Segment> = Segment::get_any_valid_segment(vec![
                     homothetic_centers.ex_31,
                     homothetic_centers.in_23,
                     homothetic_centers.in_12,
                 ]);
-                let line_4: Option<Segment> = Segment::get_any_valid_segment(&vec![
+                let line_4: Option<Segment> = Segment::get_any_valid_segment(vec![
                     homothetic_centers.ex_23,
                     homothetic_centers.in_31,
                     homothetic_centers.in_12,

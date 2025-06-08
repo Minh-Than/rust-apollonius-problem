@@ -13,14 +13,12 @@ impl Segment {
         }
     }
 
-    /// Find and return `Some(Segment)` instance comprising of the first-encountered pair of adjacent `Some(Point)` in vector `points`, otherwise return `None`.
-    ///
-    /// Disclaimer: This is a very specific method which assumes that the points are parts of a 1-dimensional span
-    /// (all lying on one straight line).
-    pub fn get_any_valid_segment(points: &Vec<Option<Pos2>>) -> Option<Self> {
-        points.windows(2).find_map(|w| match (w[0], w[1]) {
-            (Some(a), Some(b)) => Some(Self(a, b)),
-            _ => None,
-        })
+    pub fn get_any_valid_segment(points: Vec<Option<Pos2>>) -> Option<Self> {
+        let filtered_points: Vec<Pos2> = points.into_iter().flatten().collect();
+        if filtered_points.len() < 2 {
+            return None;
+        }
+
+        Some(Segment(filtered_points[0], filtered_points[1]))
     }
 }
