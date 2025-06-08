@@ -4,7 +4,7 @@ use crate::{
     enums::{color_item_names::ColorItemNames, theme_mode::ThemeMode},
     models::{
         apollonius_pair::ApolloniusPair, circle::Circle, homothetic_centers::HomotheticCenters,
-        inverse_pole_set::InversePoleSet, segment::Segment,
+        inverse_pole_set::InversePoleSet,
     },
     services,
 };
