@@ -4,7 +4,7 @@ use egui::{Context, Slider};
 
 use crate::models::app::MyApp;
 
-pub fn bottom_panel(app: &mut MyApp, ctx: &Context) {
+pub fn get(app: &mut MyApp, ctx: &Context) {
     egui::TopBottomPanel::bottom("bottom_control_panel")
         .frame(egui::Frame::side_top_panel(&ctx.style()).inner_margin(8.0))
         .show(ctx, |ui| {

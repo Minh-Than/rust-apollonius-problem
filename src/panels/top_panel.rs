@@ -2,7 +2,7 @@ use egui::{Context, Style};
 
 use crate::{enums::theme_mode::ThemeMode, models::app::MyApp};
 
-pub fn top_panel(app: &mut MyApp, ctx: &Context) {
+pub fn get(app: &mut MyApp, ctx: &Context) {
     egui::TopBottomPanel::top("top_control_panel")
         .frame(egui::Frame::side_top_panel(&ctx.style()).inner_margin(8.0))
         .show(ctx, |ui| {
