@@ -142,7 +142,19 @@ pub fn get(app: &mut MyApp, ctx: &egui::Context) {
                 let inv_pole_set_4 = InversePoleSet::new(line_4, &sorted_circles, radical_center);
 
                 // Apollonius pairs
-                let apollonius_pair_1 = get_apollonius_circles(&inv_pole_set_1, (0, 0, 0));
+                let apollonius_pair_1 = if !(app.circle_1.radius == app.circle_2.radius
+                    && app.circle_2.radius == app.circle_3.radius)
+                {
+                    get_apollonius_circles(&inv_pole_set_1, (0, 0, 0))
+                } else {
+                    services::calc::get_special_circles_pair(
+                        app.circle_1,
+                        app.circle_2,
+                        app.circle_3,
+                        radical_center,
+                    )
+                    .unwrap()
+                };
                 let apollonius_pair_2 = get_apollonius_circles(&inv_pole_set_2, (0, 0, 1));
                 let apollonius_pair_3 = get_apollonius_circles(&inv_pole_set_3, (1, 0, 1));
                 let apollonius_pair_4 = get_apollonius_circles(&inv_pole_set_4, (0, 1, 1));
