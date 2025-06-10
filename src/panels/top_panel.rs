@@ -10,7 +10,6 @@ pub fn get(app: &mut MyApp, ctx: &Context) {
                 ui.checkbox(&mut app.show_homothetic, "Homothetic centers");
                 ui.checkbox(&mut app.show_radical, "Radical center");
                 ui.checkbox(&mut app.show_inverse_poles, "Inverse poles");
-                ui.checkbox(&mut app.show_connectors, "Connectors");
                 ui.checkbox(&mut app.show_apollonius_circle_1, "A1");
                 ui.checkbox(&mut app.show_apollonius_circle_2, "A2");
                 ui.checkbox(&mut app.show_apollonius_circle_3, "A3");

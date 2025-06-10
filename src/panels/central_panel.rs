@@ -136,64 +136,16 @@ pub fn get(app: &mut MyApp, ctx: &egui::Context) {
                     services::calc::find_intersection(&radical_axes[0], &radical_axes[1]);
 
                 // Inverse poles sets
-                let inv_pole_set_1: Option<InversePoleSet> =
-                    InversePoleSet::new(line_1, &sorted_circles, radical_center);
-                let inv_pole_set_2: Option<InversePoleSet> =
-                    InversePoleSet::new(line_2, &sorted_circles, radical_center);
-                let inv_pole_set_3: Option<InversePoleSet> =
-                    InversePoleSet::new(line_3, &sorted_circles, radical_center);
-                let inv_pole_set_4: Option<InversePoleSet> =
-                    InversePoleSet::new(line_4, &sorted_circles, radical_center);
+                let inv_pole_set_1 = InversePoleSet::new(line_1, &sorted_circles, radical_center);
+                let inv_pole_set_2 = InversePoleSet::new(line_2, &sorted_circles, radical_center);
+                let inv_pole_set_3 = InversePoleSet::new(line_3, &sorted_circles, radical_center);
+                let inv_pole_set_4 = InversePoleSet::new(line_4, &sorted_circles, radical_center);
 
                 // Apollonius pairs
-                let apollonius_pair_1 = ApolloniusPair {
-                    c1: services::calc::get_circle_3_points(
-                        &inv_pole_set_1.as_ref().and_then(|set| set.s1).map(|s| s.0),
-                        &inv_pole_set_1.as_ref().and_then(|set| set.s2).map(|s| s.0),
-                        &inv_pole_set_1.as_ref().and_then(|set| set.s3).map(|s| s.0),
-                    ),
-                    c2: services::calc::get_circle_3_points(
-                        &inv_pole_set_1.as_ref().and_then(|set| set.s1).map(|s| s.1),
-                        &inv_pole_set_1.as_ref().and_then(|set| set.s2).map(|s| s.1),
-                        &inv_pole_set_1.as_ref().and_then(|set| set.s3).map(|s| s.1),
-                    ),
-                };
-                let apollonius_pair_2 = ApolloniusPair {
-                    c1: services::calc::get_circle_3_points(
-                        &inv_pole_set_2.as_ref().and_then(|set| set.s1).map(|s| s.0),
-                        &inv_pole_set_2.as_ref().and_then(|set| set.s2).map(|s| s.0),
-                        &inv_pole_set_2.as_ref().and_then(|set| set.s3).map(|s| s.1),
-                    ),
-                    c2: services::calc::get_circle_3_points(
-                        &inv_pole_set_2.as_ref().and_then(|set| set.s1).map(|s| s.1),
-                        &inv_pole_set_2.as_ref().and_then(|set| set.s2).map(|s| s.1),
-                        &inv_pole_set_2.as_ref().and_then(|set| set.s3).map(|s| s.0),
-                    ),
-                };
-                let apollonius_pair_3 = ApolloniusPair {
-                    c1: services::calc::get_circle_3_points(
-                        &inv_pole_set_3.as_ref().and_then(|set| set.s1).map(|s| s.1),
-                        &inv_pole_set_3.as_ref().and_then(|set| set.s2).map(|s| s.0),
-                        &inv_pole_set_3.as_ref().and_then(|set| set.s3).map(|s| s.1),
-                    ),
-                    c2: services::calc::get_circle_3_points(
-                        &inv_pole_set_3.as_ref().and_then(|set| set.s1).map(|s| s.0),
-                        &inv_pole_set_3.as_ref().and_then(|set| set.s2).map(|s| s.1),
-                        &inv_pole_set_3.as_ref().and_then(|set| set.s3).map(|s| s.0),
-                    ),
-                };
-                let apollonius_pair_4 = ApolloniusPair {
-                    c1: services::calc::get_circle_3_points(
-                        &inv_pole_set_4.as_ref().and_then(|set| set.s1).map(|s| s.0),
-                        &inv_pole_set_4.as_ref().and_then(|set| set.s2).map(|s| s.1),
-                        &inv_pole_set_4.as_ref().and_then(|set| set.s3).map(|s| s.1),
-                    ),
-                    c2: services::calc::get_circle_3_points(
-                        &inv_pole_set_4.as_ref().and_then(|set| set.s1).map(|s| s.1),
-                        &inv_pole_set_4.as_ref().and_then(|set| set.s2).map(|s| s.0),
-                        &inv_pole_set_4.as_ref().and_then(|set| set.s3).map(|s| s.0),
-                    ),
-                };
+                let apollonius_pair_1 = get_apollonius_circles(&inv_pole_set_1, (0, 0, 0));
+                let apollonius_pair_2 = get_apollonius_circles(&inv_pole_set_2, (0, 0, 1));
+                let apollonius_pair_3 = get_apollonius_circles(&inv_pole_set_3, (1, 0, 1));
+                let apollonius_pair_4 = get_apollonius_circles(&inv_pole_set_4, (0, 1, 1));
 
                 // Draw the shapes
                 services::draw::draw_three_circles(
@@ -236,30 +188,6 @@ pub fn get(app: &mut MyApp, ctx: &egui::Context) {
                     &inv_pole_set_4,
                     services::theme::get_color(ColorItemNames::InversePoles4, &app.theme_mode),
                     app.show_inverse_poles,
-                );
-                services::draw::draw_connectors(
-                    ui,
-                    &inv_pole_set_1,
-                    services::theme::get_color(ColorItemNames::InversePoles1, &app.theme_mode),
-                    app.show_connectors,
-                );
-                services::draw::draw_connectors(
-                    ui,
-                    &inv_pole_set_2,
-                    services::theme::get_color(ColorItemNames::InversePoles2, &app.theme_mode),
-                    app.show_connectors,
-                );
-                services::draw::draw_connectors(
-                    ui,
-                    &inv_pole_set_3,
-                    services::theme::get_color(ColorItemNames::InversePoles3, &app.theme_mode),
-                    app.show_connectors,
-                );
-                services::draw::draw_connectors(
-                    ui,
-                    &inv_pole_set_4,
-                    services::theme::get_color(ColorItemNames::InversePoles4, &app.theme_mode),
-                    app.show_connectors,
                 );
                 services::draw::draw_apollonius_circles_pair(
                     ui,
@@ -313,5 +241,37 @@ fn handle_circle_drag(response: egui::Response, is_dragging: &mut Dragging, c: &
     }
     if response.drag_stopped() {
         *is_dragging = Dragging::None;
+    }
+}
+
+fn get_apollonius_circles(
+    inverse_pole_set: &Option<InversePoleSet>,
+    ord: (i8, i8, i8),
+) -> ApolloniusPair {
+    match inverse_pole_set {
+        Some(set) => {
+            fn get_segment_point(num: i8, s: &Segment) -> egui::Pos2 {
+                if num == 0 { s.0 } else { s.1 }
+            }
+            let get_option_point = |idx: usize, ord: i8| -> Option<egui::Pos2> {
+                set.get_segment(idx)
+                    .as_ref()
+                    .map(|s| get_segment_point(ord, s))
+            };
+
+            ApolloniusPair {
+                c1: services::calc::get_circle_3_points(
+                    &get_option_point(0, ord.0),
+                    &get_option_point(1, ord.1),
+                    &get_option_point(2, ord.2),
+                ),
+                c2: services::calc::get_circle_3_points(
+                    &get_option_point(0, 1 - ord.0),
+                    &get_option_point(1, 1 - ord.1),
+                    &get_option_point(2, 1 - ord.2),
+                ),
+            }
+        }
+        None => ApolloniusPair { c1: None, c2: None },
     }
 }

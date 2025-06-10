@@ -1,16 +1,20 @@
-use crate::{models::circle::Circle, services};
+use crate::{models::circle::Circle, models::segment::Segment, services};
 use egui::Pos2;
 
-use crate::models::segment::Segment;
-
 #[derive(Clone)]
+pub struct PointSegmentPair(Option<Pos2>, Option<Segment>);
+impl PointSegmentPair {
+    pub fn get_point(&self) -> Option<Pos2> {
+        self.0
+    }
+
+    pub fn get_segment(&self) -> Option<Segment> {
+        self.1
+    }
+}
+
 pub struct InversePoleSet {
-    pub p1: Option<Pos2>,
-    pub p2: Option<Pos2>,
-    pub p3: Option<Pos2>,
-    pub s1: Option<Segment>,
-    pub s2: Option<Segment>,
-    pub s3: Option<Segment>,
+    pub point_segment_pairs: Vec<PointSegmentPair>,
 }
 impl InversePoleSet {
     pub fn new(line: Option<Segment>, circles: &[Circle], radical_center: Pos2) -> Option<Self> {
@@ -18,22 +22,36 @@ impl InversePoleSet {
         let p2 = services::calc::get_inverse_pole(&line, circles[1]);
         let p3 = services::calc::get_inverse_pole(&line, circles[2]);
 
-        Some(Self {
-            p1,
-            p2,
-            p3,
-            s1: services::calc::get_circle_straight_line_intersection(
-                &Some(Segment(p1?, radical_center).as_straight_line()),
-                &circles[0],
+        let point_segment_pairs: Vec<PointSegmentPair> = vec![
+            PointSegmentPair(
+                p1,
+                services::calc::get_circle_straight_line_intersection(
+                    &Some(Segment(p1?, radical_center).as_straight_line()),
+                    &circles[0],
+                ),
             ),
-            s2: services::calc::get_circle_straight_line_intersection(
-                &Some(Segment(p2?, radical_center).as_straight_line()),
-                &circles[1],
+            PointSegmentPair(
+                p2,
+                services::calc::get_circle_straight_line_intersection(
+                    &Some(Segment(p2?, radical_center).as_straight_line()),
+                    &circles[1],
+                ),
             ),
-            s3: services::calc::get_circle_straight_line_intersection(
-                &Some(Segment(p3?, radical_center).as_straight_line()),
-                &circles[2],
+            PointSegmentPair(
+                p3,
+                services::calc::get_circle_straight_line_intersection(
+                    &Some(Segment(p3?, radical_center).as_straight_line()),
+                    &circles[2],
+                ),
             ),
+        ];
+
+        Some(InversePoleSet {
+            point_segment_pairs,
         })
+    }
+
+    pub fn get_segment(&self, idx: usize) -> Option<Segment> {
+        self.point_segment_pairs[idx].get_segment()
     }
 }

@@ -67,36 +67,24 @@ pub fn draw_inverse_poles(
     }
 
     if let Some(set) = poles_set {
-        for pole in [set.p1, set.p2, set.p3].into_iter().flatten() {
-            ui.painter().add(egui::Shape::Circle(CircleShape {
-                center: pole,
-                radius: 2.0,
-                fill,
-                stroke: egui::Stroke::NONE,
-            }));
-        }
-    }
-}
-
-pub fn draw_connectors(
-    ui: &mut egui::Ui,
-    poles_set: &Option<InversePoleSet>,
-    stroke_color: egui::Color32,
-    condition: bool,
-) {
-    if !condition {
-        return;
-    }
-
-    if let Some(set) = poles_set {
-        for segment in [set.s1, set.s2, set.s3].into_iter().flatten() {
-            ui.painter().add(egui::Shape::LineSegment {
-                points: [segment.0, segment.1],
-                stroke: egui::Stroke {
-                    width: 0.7,
-                    color: stroke_color,
-                },
-            });
+        for pair in set.point_segment_pairs.clone() {
+            if let Some(point) = pair.get_point() {
+                ui.painter().add(egui::Shape::Circle(CircleShape {
+                    center: point,
+                    radius: 2.0,
+                    fill,
+                    stroke: egui::Stroke::NONE,
+                }));
+            }
+            if let Some(segment) = pair.get_segment() {
+                ui.painter().add(egui::Shape::LineSegment {
+                    points: [segment.0, segment.1],
+                    stroke: egui::Stroke {
+                        width: 0.7,
+                        color: fill,
+                    },
+                });
+            }
         }
     }
 }
