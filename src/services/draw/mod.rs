@@ -80,7 +80,7 @@ pub fn draw_inverse_poles(
                 ui.painter().add(egui::Shape::LineSegment {
                     points: [segment.0, segment.1],
                     stroke: egui::Stroke {
-                        width: 0.7,
+                        width: 0.5,
                         color: fill,
                     },
                 });
