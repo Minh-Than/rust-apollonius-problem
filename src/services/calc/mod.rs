@@ -3,9 +3,7 @@ use core::f32;
 use eframe::egui;
 use egui::Pos2;
 
-use crate::models::{
-    apollonius_pair::ApolloniusPair, circle::Circle, segment::Segment, straightline::StraightLine,
-};
+use crate::models::{circle::Circle, segment::Segment, straightline::StraightLine};
 
 pub fn get_external_homothetic_center(c1: Circle, c2: Circle) -> Option<Pos2> {
     let denominator = c2.radius - c1.radius;
@@ -153,51 +151,6 @@ pub fn get_circle_3_points(a: &Option<Pos2>, b: &Option<Pos2>, c: &Option<Pos2>)
         }
         _ => None,
     }
-}
-
-pub fn get_special_circles_pair(
-    c1: Circle,
-    c2: Circle,
-    c3: Circle,
-    radical_center: Pos2,
-) -> Option<ApolloniusPair> {
-    let s1 = Segment(radical_center, c1.center);
-    let s2 = Segment(radical_center, c2.center);
-    let s3 = Segment(radical_center, c3.center);
-
-    let intersect_1 = get_circle_straight_line_intersection(&Some(s1.as_straight_line()), &c1);
-    let intersect_2 = get_circle_straight_line_intersection(&Some(s2.as_straight_line()), &c2);
-    let intersect_3 = get_circle_straight_line_intersection(&Some(s3.as_straight_line()), &c3);
-
-    fn get_endpoints_tuple(p: Pos2, s: Option<Segment>, is_close: bool) -> Option<Pos2> {
-        match s {
-            Some(sgm) => {
-                if p.distance(sgm.0) < p.distance(sgm.1) {
-                    if is_close { Some(sgm.0) } else { Some(sgm.1) }
-                } else {
-                    if is_close { Some(sgm.1) } else { Some(sgm.0) }
-                }
-            }
-            None => None,
-        }
-    }
-
-    let (close_p1, close_p2, close_p3) = (
-        get_endpoints_tuple(radical_center, intersect_1, true),
-        get_endpoints_tuple(radical_center, intersect_2, true),
-        get_endpoints_tuple(radical_center, intersect_3, true),
-    );
-
-    let (far_p1, far_p2, far_p3) = (
-        get_endpoints_tuple(radical_center, intersect_1, false),
-        get_endpoints_tuple(radical_center, intersect_2, false),
-        get_endpoints_tuple(radical_center, intersect_3, false),
-    );
-
-    Some(ApolloniusPair {
-        c1: get_circle_3_points(&close_p1, &close_p2, &close_p3),
-        c2: get_circle_3_points(&far_p1, &far_p2, &far_p3),
-    })
 }
 
 pub fn internal_division_ratio(p1: Pos2, p2: Pos2, ratio_s: f32, ratio_t: f32) -> Option<Pos2> {

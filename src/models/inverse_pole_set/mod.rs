@@ -30,7 +30,7 @@ impl InversePoleSet {
                 p,
                 services::calc::get_circle_straight_line_intersection(
                     &Some(Segment(p?, radical_center).as_straight_line()),
-                    &circle,
+                    circle,
                 ),
             ));
         }
