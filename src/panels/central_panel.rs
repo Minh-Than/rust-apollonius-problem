@@ -4,7 +4,7 @@ use crate::{
     MyApp,
     enums::{color_item_names::ColorItemNames, dragging::Dragging},
     models::{
-        apollonius_pair::ApolloniusPair, circle::Circle, homothetic_centers::HomotheticCenters,
+        apollonius_pair::ApolloniusPair, circle::Circle, homothetic_set::HomotheticSet,
         inverse_pole_set::InversePoleSet, segment::Segment, straightline::StraightLine,
     },
     services,
@@ -80,52 +80,7 @@ pub fn get(app: &mut MyApp, ctx: &egui::Context) {
                 sorted_circles.sort_by(|a, b| a.radius.partial_cmp(&b.radius).unwrap());
 
                 // Homothetic centers
-                let homothetic_centers: HomotheticCenters = HomotheticCenters {
-                    ex_12: services::calc::get_external_homothetic_center(
-                        sorted_circles[0],
-                        sorted_circles[1],
-                    ),
-                    in_12: services::calc::get_internal_homothetic_center(
-                        sorted_circles[0],
-                        sorted_circles[1],
-                    ),
-                    ex_23: services::calc::get_external_homothetic_center(
-                        sorted_circles[1],
-                        sorted_circles[2],
-                    ),
-                    in_23: services::calc::get_internal_homothetic_center(
-                        sorted_circles[1],
-                        sorted_circles[2],
-                    ),
-                    ex_31: services::calc::get_external_homothetic_center(
-                        sorted_circles[2],
-                        sorted_circles[0],
-                    ),
-                    in_31: services::calc::get_internal_homothetic_center(
-                        sorted_circles[2],
-                        sorted_circles[0],
-                    ),
-                };
-                let line_1: Option<Segment> = Segment::get_any_valid_segment(vec![
-                    homothetic_centers.ex_31,
-                    homothetic_centers.ex_23,
-                    homothetic_centers.ex_12,
-                ]);
-                let line_2: Option<Segment> = Segment::get_any_valid_segment(vec![
-                    homothetic_centers.ex_12,
-                    homothetic_centers.in_31,
-                    homothetic_centers.in_23,
-                ]);
-                let line_3: Option<Segment> = Segment::get_any_valid_segment(vec![
-                    homothetic_centers.ex_31,
-                    homothetic_centers.in_23,
-                    homothetic_centers.in_12,
-                ]);
-                let line_4: Option<Segment> = Segment::get_any_valid_segment(vec![
-                    homothetic_centers.ex_23,
-                    homothetic_centers.in_31,
-                    homothetic_centers.in_12,
-                ]);
+                let homothetic_set: HomotheticSet = HomotheticSet::new(&sorted_circles);
 
                 // Radical center
                 let radical_axes: [StraightLine; 2] = [
@@ -139,13 +94,16 @@ pub fn get(app: &mut MyApp, ctx: &egui::Context) {
                 let inv_pole_set_1 = if !(app.circle_1.radius == app.circle_2.radius
                     && app.circle_2.radius == app.circle_3.radius)
                 {
-                    InversePoleSet::new(line_1, &sorted_circles, radical_center)
+                    InversePoleSet::new(homothetic_set.lines[0], &sorted_circles, radical_center)
                 } else {
                     InversePoleSet::new_special(&sorted_circles, radical_center)
                 };
-                let inv_pole_set_2 = InversePoleSet::new(line_2, &sorted_circles, radical_center);
-                let inv_pole_set_3 = InversePoleSet::new(line_3, &sorted_circles, radical_center);
-                let inv_pole_set_4 = InversePoleSet::new(line_4, &sorted_circles, radical_center);
+                let inv_pole_set_2 =
+                    InversePoleSet::new(homothetic_set.lines[1], &sorted_circles, radical_center);
+                let inv_pole_set_3 =
+                    InversePoleSet::new(homothetic_set.lines[2], &sorted_circles, radical_center);
+                let inv_pole_set_4 =
+                    InversePoleSet::new(homothetic_set.lines[3], &sorted_circles, radical_center);
 
                 // Apollonius pairs
                 let apollonius_pair_1 = get_apollonius_circles(&inv_pole_set_1, (0, 0, 0));
@@ -159,9 +117,9 @@ pub fn get(app: &mut MyApp, ctx: &egui::Context) {
                     [app.circle_1, app.circle_2, app.circle_3],
                     &app.theme_mode,
                 );
-                services::draw::draw_homothetis_centers(
+                services::draw::draw_homothetic_centers(
                     ui,
-                    &homothetic_centers,
+                    &homothetic_set,
                     app.show_homothetic,
                     &app.theme_mode,
                 );

@@ -3,7 +3,7 @@ use egui::epaint::CircleShape;
 use crate::{
     enums::{color_item_names::ColorItemNames, theme_mode::ThemeMode},
     models::{
-        apollonius_pair::ApolloniusPair, circle::Circle, homothetic_centers::HomotheticCenters,
+        apollonius_pair::ApolloniusPair, circle::Circle, homothetic_set::HomotheticSet,
         inverse_pole_set::InversePoleSet,
     },
     services,
@@ -20,22 +20,32 @@ pub fn draw_three_circles(ui: &mut egui::Ui, circles: [Circle; 3], theme_mode: &
     }
 }
 
-pub fn draw_homothetis_centers(
+pub fn draw_homothetic_centers(
     ui: &mut egui::Ui,
-    homothetic_centers: &HomotheticCenters,
+    homothetic_set: &HomotheticSet,
     condition: bool,
     theme_mode: &ThemeMode,
 ) {
     if !condition {
         return;
     }
-    for center in homothetic_centers.into_iter().flatten() {
-        ui.painter().add(egui::Shape::Circle(CircleShape {
-            center,
-            radius: 2.0,
-            fill: services::theme::get_color(ColorItemNames::HomotheticCenters, theme_mode),
-            stroke: egui::Stroke::NONE,
-        }));
+    for pair in homothetic_set.pairs.clone().into_iter() {
+        if let Some(external) = pair.ex {
+            ui.painter().add(egui::Shape::Circle(CircleShape {
+                center: external,
+                radius: 2.0,
+                fill: services::theme::get_color(ColorItemNames::HomotheticCenters, theme_mode),
+                stroke: egui::Stroke::NONE,
+            }));
+        }
+        if let Some(internal) = pair.ir {
+            ui.painter().add(egui::Shape::Circle(CircleShape {
+                center: internal,
+                radius: 2.0,
+                fill: services::theme::get_color(ColorItemNames::HomotheticCenters, theme_mode),
+                stroke: egui::Stroke::NONE,
+            }));
+        }
     }
 }
 
