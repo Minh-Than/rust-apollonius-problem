@@ -12,15 +12,24 @@ pub fn get(app: &mut MyApp, ctx: &Context) {
             ui.horizontal_wrapped(|ui| {
                 ui.vertical(|ui| {
                     ui.label("Circle 1");
-                    ui.add(Slider::new(&mut app.circle_1.radius, RADIUS_RANGE));
+                    ui.add(Slider::new(
+                        &mut app.initial_circles.circle_1.radius,
+                        RADIUS_RANGE,
+                    ));
                 });
                 ui.vertical(|ui| {
                     ui.label("Circle 2");
-                    ui.add(Slider::new(&mut app.circle_2.radius, RADIUS_RANGE));
+                    ui.add(Slider::new(
+                        &mut app.initial_circles.circle_2.radius,
+                        RADIUS_RANGE,
+                    ));
                 });
                 ui.vertical(|ui| {
                     ui.label("Circle 3");
-                    ui.add(Slider::new(&mut app.circle_3.radius, RADIUS_RANGE));
+                    ui.add(Slider::new(
+                        &mut app.initial_circles.circle_3.radius,
+                        RADIUS_RANGE,
+                    ));
                 });
 
                 ui.separator();

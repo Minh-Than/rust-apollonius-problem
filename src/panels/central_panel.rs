@@ -20,9 +20,10 @@ pub fn get(app: &mut MyApp, ctx: &egui::Context) {
                 inner_rect = ui.min_rect();
 
                 // Clipping rect bounding all 3 circles for handing indiviual circle dragging
-                let union_3_circles_clipping_rect = get_circle_clipping_rect(app.circle_1)
-                    .union(get_circle_clipping_rect(app.circle_2))
-                    .union(get_circle_clipping_rect(app.circle_3));
+                let union_3_circles_clipping_rect =
+                    get_circle_clipping_rect(app.initial_circles.circle_1)
+                        .union(get_circle_clipping_rect(app.initial_circles.circle_2))
+                        .union(get_circle_clipping_rect(app.initial_circles.circle_3));
 
                 let response_circles =
                     ui.allocate_rect(union_3_circles_clipping_rect, egui::Sense::click_and_drag());
@@ -32,9 +33,9 @@ pub fn get(app: &mut MyApp, ctx: &egui::Context) {
 
                     if let Some(pos) = response_circles.interact_pointer_pos() {
                         for (dragging, circle) in [
-                            (Dragging::Circle1, &app.circle_1),
-                            (Dragging::Circle2, &app.circle_2),
-                            (Dragging::Circle3, &app.circle_3),
+                            (Dragging::Circle1, &app.initial_circles.circle_1),
+                            (Dragging::Circle2, &app.initial_circles.circle_2),
+                            (Dragging::Circle3, &app.initial_circles.circle_3),
                         ] {
                             let dist = pos.distance(circle.center);
                             if dist < circle.radius && dist < min_distance {
@@ -52,23 +53,23 @@ pub fn get(app: &mut MyApp, ctx: &egui::Context) {
                     Dragging::Circle1 => handle_circle_drag(
                         response_circles,
                         &mut app.is_dragging,
-                        &mut app.circle_1,
+                        &mut app.initial_circles.circle_1,
                     ),
                     Dragging::Circle2 => handle_circle_drag(
                         response_circles,
                         &mut app.is_dragging,
-                        &mut app.circle_2,
+                        &mut app.initial_circles.circle_2,
                     ),
                     Dragging::Circle3 => handle_circle_drag(
                         response_circles,
                         &mut app.is_dragging,
-                        &mut app.circle_3,
+                        &mut app.initial_circles.circle_3,
                     ),
                     Dragging::None => {
                         if response_circles.dragged() {
-                            app.circle_1.center += response_circles.drag_delta();
-                            app.circle_2.center += response_circles.drag_delta();
-                            app.circle_3.center += response_circles.drag_delta();
+                            for circle in app.initial_circles.as_array().iter_mut() {
+                                circle.center += response_circles.drag_delta();
+                            }
                         }
                         if response_circles.drag_stopped() {
                             app.is_dragging = Dragging::None;
@@ -76,7 +77,7 @@ pub fn get(app: &mut MyApp, ctx: &egui::Context) {
                     }
                 }
 
-                let mut sorted_circles = vec![app.circle_1, app.circle_2, app.circle_3];
+                let mut sorted_circles = app.initial_circles.as_array();
                 sorted_circles.sort_by(|a, b| a.radius.partial_cmp(&b.radius).unwrap());
 
                 // Homothetic centers
@@ -84,15 +85,22 @@ pub fn get(app: &mut MyApp, ctx: &egui::Context) {
 
                 // Radical center
                 let radical_axes: [StraightLine; 2] = [
-                    services::calc::get_radical_axis(app.circle_1, app.circle_2),
-                    services::calc::get_radical_axis(app.circle_2, app.circle_3),
+                    services::calc::get_radical_axis(
+                        app.initial_circles.circle_1,
+                        app.initial_circles.circle_2,
+                    ),
+                    services::calc::get_radical_axis(
+                        app.initial_circles.circle_2,
+                        app.initial_circles.circle_3,
+                    ),
                 ];
                 let radical_center: egui::Pos2 =
                     services::calc::find_intersection(&radical_axes[0], &radical_axes[1]);
 
                 // Inverse poles sets
-                let inv_pole_set_1 = if !(app.circle_1.radius == app.circle_2.radius
-                    && app.circle_2.radius == app.circle_3.radius)
+                let inv_pole_set_1 = if !(app.initial_circles.circle_1.radius
+                    == app.initial_circles.circle_2.radius
+                    && app.initial_circles.circle_2.radius == app.initial_circles.circle_3.radius)
                 {
                     InversePoleSet::new(homothetic_set.lines[0], &sorted_circles, radical_center)
                 } else {
@@ -114,68 +122,68 @@ pub fn get(app: &mut MyApp, ctx: &egui::Context) {
                 // Draw the shapes
                 services::draw::draw_three_circles(
                     ui,
-                    [app.circle_1, app.circle_2, app.circle_3],
+                    app.initial_circles.as_array(),
                     &app.theme_mode,
                 );
                 services::draw::draw_homothetic_centers(
                     ui,
                     &homothetic_set,
-                    app.show_homothetic,
+                    app.display_options.show_homothetic,
                     &app.theme_mode,
                 );
                 services::draw::draw_radical_center(
                     ui,
                     radical_center,
-                    app.show_radical,
+                    app.display_options.show_radical,
                     &app.theme_mode,
                 );
                 services::draw::draw_inverse_poles(
                     ui,
                     &inv_pole_set_1,
                     services::theme::get_color(ColorItemNames::InversePoles1, &app.theme_mode),
-                    app.show_inverse_poles,
+                    app.display_options.show_inverse_poles,
                 );
                 services::draw::draw_inverse_poles(
                     ui,
                     &inv_pole_set_2,
                     services::theme::get_color(ColorItemNames::InversePoles2, &app.theme_mode),
-                    app.show_inverse_poles,
+                    app.display_options.show_inverse_poles,
                 );
                 services::draw::draw_inverse_poles(
                     ui,
                     &inv_pole_set_3,
                     services::theme::get_color(ColorItemNames::InversePoles3, &app.theme_mode),
-                    app.show_inverse_poles,
+                    app.display_options.show_inverse_poles,
                 );
                 services::draw::draw_inverse_poles(
                     ui,
                     &inv_pole_set_4,
                     services::theme::get_color(ColorItemNames::InversePoles4, &app.theme_mode),
-                    app.show_inverse_poles,
+                    app.display_options.show_inverse_poles,
                 );
                 services::draw::draw_apollonius_circles_pair(
                     ui,
                     &apollonius_pair_1,
                     services::theme::get_color(ColorItemNames::InversePoles1, &app.theme_mode),
-                    app.show_apollonius_circle_1,
+                    app.display_options.show_apollonius_circle_1,
                 );
                 services::draw::draw_apollonius_circles_pair(
                     ui,
                     &apollonius_pair_2,
                     services::theme::get_color(ColorItemNames::InversePoles2, &app.theme_mode),
-                    app.show_apollonius_circle_2,
+                    app.display_options.show_apollonius_circle_2,
                 );
                 services::draw::draw_apollonius_circles_pair(
                     ui,
                     &apollonius_pair_3,
                     services::theme::get_color(ColorItemNames::InversePoles3, &app.theme_mode),
-                    app.show_apollonius_circle_3,
+                    app.display_options.show_apollonius_circle_3,
                 );
                 services::draw::draw_apollonius_circles_pair(
                     ui,
                     &apollonius_pair_4,
                     services::theme::get_color(ColorItemNames::InversePoles4, &app.theme_mode),
-                    app.show_apollonius_circle_4,
+                    app.display_options.show_apollonius_circle_4,
                 );
             })
             .response;
