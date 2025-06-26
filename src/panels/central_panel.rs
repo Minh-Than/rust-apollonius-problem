@@ -4,8 +4,9 @@ use crate::{
     MyApp,
     enums::{color_item_names::ColorItemNames, dragging::Dragging},
     models::{
-        apollonius_pair::ApolloniusPair, circle::Circle, homothetic_set::HomotheticSet,
-        inverse_pole_set::InversePoleSet, segment::Segment, straightline::StraightLine,
+        apollonius_pair::ApolloniusPair, app::InitialCircles, circle::Circle,
+        homothetic_set::HomotheticSet, inverse_pole_set::InversePoleSet, segment::Segment,
+        straightline::StraightLine,
     },
     services,
 };
@@ -28,54 +29,11 @@ pub fn get(app: &mut MyApp, ctx: &egui::Context) {
                 // Handle mouse dragging events
                 let response_circles =
                     ui.allocate_rect(union_3_circles_clipping_rect, egui::Sense::click_and_drag());
-                if response_circles.drag_started() {
-                    let mut closest: Option<Dragging> = None;
-                    let mut min_distance = f32::INFINITY;
-
-                    if let Some(pos) = response_circles.interact_pointer_pos() {
-                        for (dragging, circle) in [
-                            (Dragging::Circle1, &app.initial_circles.circle_1),
-                            (Dragging::Circle2, &app.initial_circles.circle_2),
-                            (Dragging::Circle3, &app.initial_circles.circle_3),
-                        ] {
-                            let dist = pos.distance(circle.center);
-                            if dist < circle.radius && dist < min_distance {
-                                min_distance = dist;
-                                closest = Some(dragging);
-                            }
-                        }
-                        if let Some(dragging) = closest {
-                            app.is_dragging = dragging;
-                        }
-                    }
-                }
-                match app.is_dragging {
-                    Dragging::Circle1 => handle_circle_drag(
-                        response_circles,
-                        &mut app.is_dragging,
-                        &mut app.initial_circles.circle_1,
-                    ),
-                    Dragging::Circle2 => handle_circle_drag(
-                        response_circles,
-                        &mut app.is_dragging,
-                        &mut app.initial_circles.circle_2,
-                    ),
-                    Dragging::Circle3 => handle_circle_drag(
-                        response_circles,
-                        &mut app.is_dragging,
-                        &mut app.initial_circles.circle_3,
-                    ),
-                    Dragging::None => {
-                        if response_circles.dragged() {
-                            for circle in app.initial_circles.as_array().iter_mut() {
-                                circle.center += response_circles.drag_delta();
-                            }
-                        }
-                        if response_circles.drag_stopped() {
-                            app.is_dragging = Dragging::None;
-                        }
-                    }
-                }
+                handle_circles_drag_events(
+                    response_circles,
+                    &mut app.initial_circles,
+                    &mut app.is_dragging,
+                );
 
                 // Homothetic centers
                 let mut sorted_circles = app.initial_circles.as_array();
@@ -97,6 +55,25 @@ pub fn get(app: &mut MyApp, ctx: &egui::Context) {
                     services::calc::find_intersection(&radical_axes[0], &radical_axes[1]);
 
                 // Inverse poles sets
+                // todo: do the same for appolonius pairs and refactor the drawing steps
+                let inv_pole_sets: Vec<Option<InversePoleSet>> = {
+                    let mut sets: Vec<Option<InversePoleSet>> = vec![];
+                    let mut first = true;
+                    let same_radius = app.initial_circles.same_radius();
+                    println!("are they same radius {}", same_radius);
+
+                    for line in homothetic_set.lines {
+                        if first && same_radius {
+                            sets.push(InversePoleSet::new_special(&sorted_circles, radical_center));
+                            first = false;
+                            continue;
+                        }
+
+                        sets.push(InversePoleSet::new(line, &sorted_circles, radical_center));
+                    }
+                    sets
+                };
+
                 let inv_pole_set_1 = if !(app.initial_circles.circle_1.radius
                     == app.initial_circles.circle_2.radius
                     && app.initial_circles.circle_2.radius == app.initial_circles.circle_3.radius)
@@ -206,10 +183,52 @@ fn get_circle_clipping_rect(c: Circle) -> egui::Rect {
     }
 }
 
-fn handle_circle_drag(response: egui::Response, is_dragging: &mut Dragging, c: &mut Circle) {
-    if response.dragged() {
-        c.center += response.drag_delta();
+fn handle_circles_drag_events(
+    response: egui::Response,
+    initial_circles: &mut InitialCircles,
+    is_dragging: &mut Dragging,
+) {
+    if response.drag_started() {
+        let mut closest: Option<Dragging> = None;
+        let mut min_distance = f32::INFINITY;
+
+        if let Some(pos) = response.interact_pointer_pos() {
+            for (dragging, circle) in [
+                (Dragging::Circle1, &initial_circles.circle_1),
+                (Dragging::Circle2, &initial_circles.circle_2),
+                (Dragging::Circle3, &initial_circles.circle_3),
+            ] {
+                let dist = pos.distance(circle.center);
+                if dist < circle.radius && dist < min_distance {
+                    min_distance = dist;
+                    closest = Some(dragging);
+                }
+            }
+            if let Some(dragging) = closest {
+                *is_dragging = dragging;
+            }
+        }
     }
+
+    if response.dragged() {
+        match is_dragging {
+            Dragging::Circle1 => {
+                initial_circles.circle_1.center += response.drag_delta();
+            }
+            Dragging::Circle2 => {
+                initial_circles.circle_2.center += response.drag_delta();
+            }
+            Dragging::Circle3 => {
+                initial_circles.circle_3.center += response.drag_delta();
+            }
+            Dragging::None => {
+                for circle in initial_circles.as_array().iter_mut() {
+                    circle.center += response.drag_delta();
+                }
+            }
+        }
+    }
+
     if response.drag_stopped() {
         *is_dragging = Dragging::None;
     }

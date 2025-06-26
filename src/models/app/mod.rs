@@ -14,6 +14,10 @@ impl InitialCircles {
     pub fn as_array(self) -> [Circle; 3] {
         [self.circle_1, self.circle_2, self.circle_3]
     }
+
+    pub fn same_radius(self) -> bool {
+        self.circle_1.radius == self.circle_2.radius && self.circle_2.radius == self.circle_3.radius
+    }
 }
 impl Default for InitialCircles {
     fn default() -> Self {
