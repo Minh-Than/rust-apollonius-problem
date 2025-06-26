@@ -78,7 +78,7 @@ pub fn draw_inverse_poles(
 
     if let Some(set) = poles_set {
         for pair in set.point_segment_pairs.clone() {
-            if let Some(point) = pair.get_point() {
+            if let Some(point) = pair.point {
                 ui.painter().add(egui::Shape::Circle(CircleShape {
                     center: point,
                     radius: 2.0,
@@ -86,7 +86,7 @@ pub fn draw_inverse_poles(
                     stroke: egui::Stroke::NONE,
                 }));
             }
-            if let Some(segment) = pair.get_segment() {
+            if let Some(segment) = pair.segment {
                 ui.painter().add(egui::Shape::LineSegment {
                     points: [segment.0, segment.1],
                     stroke: egui::Stroke {

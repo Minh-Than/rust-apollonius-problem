@@ -4,15 +4,9 @@ use crate::{models::circle::Circle, models::segment::Segment, services};
 use egui::Pos2;
 
 #[derive(Clone)]
-pub struct PointSegmentPair(Option<Pos2>, Option<Segment>);
-impl PointSegmentPair {
-    pub fn get_point(&self) -> Option<Pos2> {
-        self.0
-    }
-
-    pub fn get_segment(&self) -> Option<Segment> {
-        self.1
-    }
+pub struct PointSegmentPair {
+    pub point: Option<Pos2>,
+    pub segment: Option<Segment>,
 }
 
 pub struct InversePoleSet {
@@ -25,14 +19,12 @@ impl InversePoleSet {
         let p3 = services::calc::get_inverse_pole(&line, circles[2]);
 
         let mut point_segment_pairs: Vec<PointSegmentPair> = Vec::new();
-        for (circle, p) in zip(circles, [p1, p2, p3]) {
-            point_segment_pairs.push(PointSegmentPair(
-                p,
-                services::calc::get_circle_straight_line_intersection(
-                    &Some(Segment(p?, radical_center).as_straight_line()),
-                    circle,
-                ),
-            ));
+        for (circle, point) in zip(circles, [p1, p2, p3]) {
+            let segment = services::calc::get_circle_straight_line_intersection(
+                &Some(Segment(point?, radical_center).as_straight_line()),
+                circle,
+            );
+            point_segment_pairs.push(PointSegmentPair { point, segment });
         }
 
         Some(InversePoleSet {
@@ -43,13 +35,13 @@ impl InversePoleSet {
     pub fn new_special(circles: &[Circle], radical_center: Pos2) -> Option<Self> {
         let mut point_segment_pairs: Vec<PointSegmentPair> = Vec::new();
         for circle in circles {
-            point_segment_pairs.push(PointSegmentPair(
-                Some(circle.center),
-                services::calc::get_circle_straight_line_intersection(
+            point_segment_pairs.push(PointSegmentPair {
+                point: Some(circle.center),
+                segment: services::calc::get_circle_straight_line_intersection(
                     &Some(Segment(circle.center, radical_center).as_straight_line()),
                     circle,
                 ),
-            ));
+            });
         }
 
         Some(InversePoleSet {
@@ -58,6 +50,6 @@ impl InversePoleSet {
     }
 
     pub fn get_segment(&self, idx: usize) -> Option<Segment> {
-        self.point_segment_pairs[idx].get_segment()
+        self.point_segment_pairs[idx].segment
     }
 }
