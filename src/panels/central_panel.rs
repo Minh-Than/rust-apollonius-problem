@@ -54,26 +54,27 @@ pub fn get(app: &mut MyApp, ctx: &egui::Context) {
                 let radical_center: egui::Pos2 =
                     services::calc::find_intersection(&radical_axes[0], &radical_axes[1]);
 
+                // TODO: think of a way to nicely refactor the drawing steps
+
+                // let inv_pole_sets: Vec<Option<InversePoleSet>> = {
+                //     let mut sets: Vec<Option<InversePoleSet>> = vec![];
+                //     let mut first = true;
+                //     let same_radius = app.initial_circles.same_radius();
+                //     println!("are they same radius {}", same_radius);
+
+                //     for line in homothetic_set.lines {
+                //         if first && same_radius {
+                //             sets.push(InversePoleSet::new_special(&sorted_circles, radical_center));
+                //             first = false;
+                //             continue;
+                //         }
+
+                //         sets.push(InversePoleSet::new(line, &sorted_circles, radical_center));
+                //     }
+                //     sets
+                // };
+
                 // Inverse poles sets
-                // todo: do the same for appolonius pairs and refactor the drawing steps
-                let inv_pole_sets: Vec<Option<InversePoleSet>> = {
-                    let mut sets: Vec<Option<InversePoleSet>> = vec![];
-                    let mut first = true;
-                    let same_radius = app.initial_circles.same_radius();
-                    println!("are they same radius {}", same_radius);
-
-                    for line in homothetic_set.lines {
-                        if first && same_radius {
-                            sets.push(InversePoleSet::new_special(&sorted_circles, radical_center));
-                            first = false;
-                            continue;
-                        }
-
-                        sets.push(InversePoleSet::new(line, &sorted_circles, radical_center));
-                    }
-                    sets
-                };
-
                 let inv_pole_set_1 = if !(app.initial_circles.circle_1.radius
                     == app.initial_circles.circle_2.radius
                     && app.initial_circles.circle_2.radius == app.initial_circles.circle_3.radius)
