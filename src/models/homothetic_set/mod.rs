@@ -1,9 +1,6 @@
 use egui::Pos2;
 
-use crate::{
-    models::{circle::Circle, segment::Segment},
-    services,
-};
+use crate::models::{circle::Circle, segment::Segment};
 
 #[derive(Clone)]
 pub struct HomotheticPair {
@@ -13,8 +10,8 @@ pub struct HomotheticPair {
 impl HomotheticPair {
     pub fn new(circle_1: Circle, circle_2: Circle) -> Self {
         Self {
-            ex: services::calc::get_external_homothetic_center(circle_1, circle_2),
-            ir: services::calc::get_internal_homothetic_center(circle_1, circle_2),
+            ex: HomotheticSet::get_external_homothetic_center(circle_1, circle_2),
+            ir: HomotheticSet::get_internal_homothetic_center(circle_1, circle_2),
         }
     }
 }
@@ -40,5 +37,26 @@ impl HomotheticSet {
         ];
 
         Self { pairs, lines }
+    }
+
+    pub fn get_external_homothetic_center(c1: Circle, c2: Circle) -> Option<Pos2> {
+        let denominator = c2.radius - c1.radius;
+        if denominator.abs() < 10e-6 {
+            return None;
+        }
+
+        let x = (c2.radius * c1.center.x - c1.radius * c2.center.x) / denominator;
+        let y = (c2.radius * c1.center.y - c1.radius * c2.center.y) / denominator;
+
+        Some(Pos2 { x, y })
+    }
+
+    // Unlike the beta external, internal is unfuckable
+    pub fn get_internal_homothetic_center(c1: Circle, c2: Circle) -> Option<Pos2> {
+        let denominator = c2.radius + c1.radius;
+        let x = (c2.radius * c1.center.x + c1.radius * c2.center.x) / denominator;
+        let y = (c2.radius * c1.center.y + c1.radius * c2.center.y) / denominator;
+
+        Some(Pos2 { x, y })
     }
 }

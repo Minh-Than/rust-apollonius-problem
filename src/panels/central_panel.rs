@@ -4,9 +4,8 @@ use crate::{
     MyApp,
     enums::{color_item_names::ColorItemNames, dragging::Dragging},
     models::{
-        apollonius_pair::ApolloniusPair, app::InitialCircles, circle::Circle,
-        homothetic_set::HomotheticSet, inverse_pole_set::InversePoleSet, segment::Segment,
-        straightline::StraightLine,
+        apollonius_pair::ApolloniusPair, app::InitialCircles, homothetic_set::HomotheticSet,
+        inverse_pole_set::InversePoleSet, straightline::StraightLine,
     },
     services,
 };
@@ -21,10 +20,12 @@ pub fn get(app: &mut MyApp, ctx: &egui::Context) {
                 inner_rect = ui.min_rect();
 
                 // Clipping rect bounding all 3 circles for handing indiviual circle dragging
-                let union_3_circles_clipping_rect =
-                    get_circle_clipping_rect(app.initial_circles.circle_1)
-                        .union(get_circle_clipping_rect(app.initial_circles.circle_2))
-                        .union(get_circle_clipping_rect(app.initial_circles.circle_3));
+                let union_3_circles_clipping_rect = app
+                    .initial_circles
+                    .circle_1
+                    .get_circle_clipping_rect()
+                    .union(app.initial_circles.circle_2.get_circle_clipping_rect())
+                    .union(app.initial_circles.circle_3.get_circle_clipping_rect());
 
                 // Handle mouse dragging events
                 let response_circles =
@@ -75,10 +76,7 @@ pub fn get(app: &mut MyApp, ctx: &egui::Context) {
                 // };
 
                 // Inverse poles sets
-                let inv_pole_set_1 = if !(app.initial_circles.circle_1.radius
-                    == app.initial_circles.circle_2.radius
-                    && app.initial_circles.circle_2.radius == app.initial_circles.circle_3.radius)
-                {
+                let inv_pole_set_1 = if !app.initial_circles.same_radius() {
                     InversePoleSet::new(homothetic_set.lines[0], &sorted_circles, radical_center)
                 } else {
                     InversePoleSet::new_special(&sorted_circles, radical_center)
@@ -91,10 +89,14 @@ pub fn get(app: &mut MyApp, ctx: &egui::Context) {
                     InversePoleSet::new(homothetic_set.lines[3], &sorted_circles, radical_center);
 
                 // Apollonius pairs
-                let apollonius_pair_1 = get_apollonius_circles(&inv_pole_set_1, (0, 0, 0));
-                let apollonius_pair_2 = get_apollonius_circles(&inv_pole_set_2, (0, 0, 1));
-                let apollonius_pair_3 = get_apollonius_circles(&inv_pole_set_3, (1, 0, 1));
-                let apollonius_pair_4 = get_apollonius_circles(&inv_pole_set_4, (0, 1, 1));
+                let apollonius_pair_1 =
+                    ApolloniusPair::get_apollonius_circles(&inv_pole_set_1, (0, 0, 0));
+                let apollonius_pair_2 =
+                    ApolloniusPair::get_apollonius_circles(&inv_pole_set_2, (0, 0, 1));
+                let apollonius_pair_3 =
+                    ApolloniusPair::get_apollonius_circles(&inv_pole_set_3, (1, 0, 1));
+                let apollonius_pair_4 =
+                    ApolloniusPair::get_apollonius_circles(&inv_pole_set_4, (0, 1, 1));
 
                 // Draw the shapes
                 services::draw::draw_three_circles(
@@ -171,19 +173,6 @@ pub fn get(app: &mut MyApp, ctx: &egui::Context) {
     });
 }
 
-fn get_circle_clipping_rect(c: Circle) -> egui::Rect {
-    egui::Rect {
-        min: egui::Pos2 {
-            x: c.center.x - c.radius,
-            y: c.center.y - c.radius,
-        },
-        max: egui::Pos2 {
-            x: c.center.x + c.radius,
-            y: c.center.y + c.radius,
-        },
-    }
-}
-
 fn handle_circles_drag_events(
     response: egui::Response,
     initial_circles: &mut InitialCircles,
@@ -233,36 +222,4 @@ fn handle_circles_drag_events(
     if response.drag_stopped() {
         *is_dragging = Dragging::None;
     }
-}
-
-fn get_apollonius_circles(
-    inverse_pole_set: &Option<InversePoleSet>,
-    ord: (i8, i8, i8),
-) -> ApolloniusPair {
-    let mut circle_1: Option<Circle> = None;
-    let mut circle_2: Option<Circle> = None;
-
-    if let Some(set) = inverse_pole_set {
-        fn get_segment_point(num: i8, s: &Segment) -> egui::Pos2 {
-            if num == 0 { s.0 } else { s.1 }
-        }
-        let get_option_point = |idx: usize, ord: i8| -> Option<egui::Pos2> {
-            set.get_segment(idx)
-                .as_ref()
-                .map(|s| get_segment_point(ord, s))
-        };
-
-        circle_1 = services::calc::get_circle_3_points(
-            &get_option_point(0, ord.0),
-            &get_option_point(1, ord.1),
-            &get_option_point(2, ord.2),
-        );
-        circle_2 = services::calc::get_circle_3_points(
-            &get_option_point(0, 1 - ord.0),
-            &get_option_point(1, 1 - ord.1),
-            &get_option_point(2, 1 - ord.2),
-        );
-    }
-
-    ApolloniusPair { circle_1, circle_2 }
 }

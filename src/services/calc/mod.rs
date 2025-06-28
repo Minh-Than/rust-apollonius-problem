@@ -5,27 +5,6 @@ use egui::Pos2;
 
 use crate::models::{circle::Circle, segment::Segment, straightline::StraightLine};
 
-pub fn get_external_homothetic_center(c1: Circle, c2: Circle) -> Option<Pos2> {
-    let denominator = c2.radius - c1.radius;
-    if denominator.abs() < 10e-6 {
-        return None;
-    }
-
-    let x = (c2.radius * c1.center.x - c1.radius * c2.center.x) / denominator;
-    let y = (c2.radius * c1.center.y - c1.radius * c2.center.y) / denominator;
-
-    Some(Pos2 { x, y })
-}
-
-// Unlike the beta external, internal is unfuckable
-pub fn get_internal_homothetic_center(c1: Circle, c2: Circle) -> Option<Pos2> {
-    let denominator = c2.radius + c1.radius;
-    let x = (c2.radius * c1.center.x + c1.radius * c2.center.x) / denominator;
-    let y = (c2.radius * c1.center.y + c1.radius * c2.center.y) / denominator;
-
-    Some(Pos2 { x, y })
-}
-
 pub fn get_radical_axis(c1: Circle, c2: Circle) -> StraightLine {
     let a: f32 = 2.0 * (c2.center.x - c1.center.x);
     let b: f32 = 2.0 * (c2.center.y - c1.center.y);
@@ -33,124 +12,6 @@ pub fn get_radical_axis(c1: Circle, c2: Circle) -> StraightLine {
         - (c2.center.x.powi(2) + c2.center.y.powi(2) - c2.radius.powi(2));
 
     StraightLine { a, b, c }
-}
-
-pub fn get_inverse_pole(s: &Option<Segment>, c: Circle) -> Option<Pos2> {
-    match *s {
-        Some(sgm) => {
-            if is_segment_intersecting_circle(&sgm, &c) {
-                let intersecting_segment: Option<Segment> =
-                    get_circle_straight_line_intersection(&Some(sgm.as_straight_line()), &c);
-
-                match intersecting_segment {
-                    Some(int_sgm) => {
-                        let dx = int_sgm.0.x - c.center.x;
-                        let dy = int_sgm.0.y - c.center.y;
-
-                        let tangent_x = -dy;
-                        let tangent_y = dx;
-
-                        let tangent: Segment = Segment(
-                            Pos2 {
-                                x: int_sgm.0.x - tangent_x,
-                                y: int_sgm.0.y - tangent_y,
-                            },
-                            Pos2 {
-                                x: int_sgm.0.x + tangent_x,
-                                y: int_sgm.0.y + tangent_y,
-                            },
-                        );
-
-                        let projection_segment: Segment =
-                            Segment(c.center, find_projection(&sgm.as_straight_line(), c.center));
-                        Some(find_intersection(
-                            &tangent.as_straight_line(),
-                            &projection_segment.as_straight_line(),
-                        ))
-                    }
-                    None => None,
-                }
-            } else {
-                let polar_projection_segment: Segment =
-                    Segment(c.center, find_projection(&sgm.as_straight_line(), c.center));
-                let projection_midpoint: Pos2 = mid_point(&polar_projection_segment);
-                let compass_circle: Circle = Circle {
-                    center: projection_midpoint,
-                    radius: projection_midpoint.distance(c.center),
-                };
-                let intersection = get_circles_intersection(&compass_circle, &c);
-
-                Some(find_intersection(
-                    &polar_projection_segment.as_straight_line(),
-                    &intersection.as_straight_line(),
-                ))
-            }
-        }
-        None => None,
-    }
-}
-
-pub fn get_circle_3_points(a: &Option<Pos2>, b: &Option<Pos2>, c: &Option<Pos2>) -> Option<Circle> {
-    match (*a, *b, *c) {
-        (Some(p1), Some(p2), Some(p3)) => {
-            let s1: Segment = Segment(p1, p2);
-            let s2: Segment = Segment(p2, p3);
-            let s3: Segment = Segment(p3, p1);
-
-            if check_if_flat_angle(&s1, &s2)
-                || check_if_flat_angle(&s2, &s3)
-                || check_if_flat_angle(&s3, &s1)
-            {
-                return None;
-            }
-
-            let orth_1 = match internal_division_ratio(
-                Pos2 {
-                    x: s1.0.x,
-                    y: s1.0.y,
-                },
-                Pos2 {
-                    x: s1.1.x,
-                    y: s1.1.y,
-                },
-                1.0,
-                1.0,
-            ) {
-                Some(point) => point,
-                None => Pos2 {
-                    x: f32::NEG_INFINITY,
-                    y: f32::NEG_INFINITY,
-                },
-            };
-            let orth_2 = match internal_division_ratio(
-                Pos2 {
-                    x: s2.0.x,
-                    y: s2.0.y,
-                },
-                Pos2 {
-                    x: s2.1.x,
-                    y: s2.1.y,
-                },
-                1.0,
-                1.0,
-            ) {
-                Some(point) => point,
-                None => Pos2 {
-                    x: f32::NEG_INFINITY,
-                    y: f32::NEG_INFINITY,
-                },
-            };
-
-            let l1: StraightLine = orthoganalize(&s1.as_straight_line(), orth_1);
-            let l2: StraightLine = orthoganalize(&s2.as_straight_line(), orth_2);
-            let intersection: Pos2 = find_intersection(&l1, &l2);
-            Some(Circle {
-                center: intersection,
-                radius: p1.distance(intersection),
-            })
-        }
-        _ => None,
-    }
 }
 
 pub fn internal_division_ratio(p1: Pos2, p2: Pos2, ratio_s: f32, ratio_t: f32) -> Option<Pos2> {
@@ -303,7 +164,7 @@ pub fn get_circles_intersection(c1: &Circle, c2: &Circle) -> Segment {
     )
 }
 
-fn get_circles_intersection_as_straight_line(c1: &Circle, c2: &Circle) -> StraightLine {
+pub fn get_circles_intersection_as_straight_line(c1: &Circle, c2: &Circle) -> StraightLine {
     let x1 = c1.center.x;
     let y1 = c1.center.y;
     let r1 = c1.radius;
@@ -318,12 +179,12 @@ fn get_circles_intersection_as_straight_line(c1: &Circle, c2: &Circle) -> Straig
     StraightLine { a, b, c }
 }
 
-fn find_projection(l: &StraightLine, p: Pos2) -> Pos2 {
+pub fn find_projection(l: &StraightLine, p: Pos2) -> Pos2 {
     let ort_l: StraightLine = orthoganalize(l, p);
     find_intersection(l, &ort_l)
 }
 
-fn orthoganalize(l: &StraightLine, p: Pos2) -> StraightLine {
+pub fn orthoganalize(l: &StraightLine, p: Pos2) -> StraightLine {
     let a = l.b;
     let b = -l.a;
     let c = -l.b * p.x + l.a * p.y;
@@ -331,7 +192,7 @@ fn orthoganalize(l: &StraightLine, p: Pos2) -> StraightLine {
     StraightLine { a, b, c }
 }
 
-fn mid_point(s: &Segment) -> Pos2 {
+pub fn mid_point(s: &Segment) -> Pos2 {
     let x = (s.1.x + s.0.x) / 2.0;
     let y = (s.1.y + s.0.y) / 2.0;
 
