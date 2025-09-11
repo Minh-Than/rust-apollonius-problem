@@ -1,4 +1,5 @@
 use eframe::egui;
+use enums::theme_mode::ThemeMode;
 use models::app::MyApp;
 use panels::{bottom_panel, central_panel, top_panel};
 
@@ -26,18 +27,12 @@ fn main() -> eframe::Result {
 
 impl eframe::App for MyApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        match self.theme_mode {
-            enums::theme_mode::ThemeMode::Light => {
-                let mut style: egui::Style = (*ctx.style()).clone();
-                style.visuals = egui::Visuals::light();
-                ctx.set_style(style);
-            }
-            enums::theme_mode::ThemeMode::Dark => {
-                let mut style: egui::Style = (*ctx.style()).clone();
-                style.visuals = egui::Visuals::dark();
-                ctx.set_style(style);
-            }
+        let mut style: egui::Style = (*ctx.style()).clone();
+        style.visuals = match self.theme_mode {
+            ThemeMode::Light => egui::Visuals::light(),
+            ThemeMode::Dark => egui::Visuals::dark(),
         };
+        ctx.set_style(style);
 
         top_panel::get(self, ctx);
         bottom_panel::get(self, ctx);

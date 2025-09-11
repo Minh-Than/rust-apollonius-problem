@@ -1,20 +1,16 @@
-use egui::epaint::CircleShape;
+use egui::{Color32, epaint::CircleShape};
 
-use crate::{
-    enums::{color_item_names::ColorItemNames, theme_mode::ThemeMode},
-    models::{
-        apollonius_pair::ApolloniusPair, circle::Circle, homothetic_set::HomotheticSet,
-        inverse_pole_set::InversePoleSet,
-    },
-    services,
+use crate::models::{
+    apollonius_pair::ApolloniusPair, circle::Circle, homothetic_set::HomotheticSet,
+    inverse_pole_set::InversePoleSet,
 };
 
-pub fn draw_three_circles(ui: &mut egui::Ui, circles: [Circle; 3], theme_mode: &ThemeMode) {
+pub fn draw_three_circles(ui: &mut egui::Ui, circles: [Circle; 3], fill: Color32) {
     for circle in circles {
         ui.painter().add(egui::Shape::Circle(CircleShape {
             center: circle.center,
             radius: circle.radius,
-            fill: services::theme::get_color(ColorItemNames::InitialCircles, theme_mode),
+            fill,
             stroke: egui::Stroke::NONE,
         }));
     }
@@ -24,7 +20,7 @@ pub fn draw_homothetic_centers(
     ui: &mut egui::Ui,
     homothetic_set: &HomotheticSet,
     condition: bool,
-    theme_mode: &ThemeMode,
+    fill: Color32,
 ) {
     if !condition {
         return;
@@ -34,7 +30,7 @@ pub fn draw_homothetic_centers(
             ui.painter().add(egui::Shape::Circle(CircleShape {
                 center: external,
                 radius: 2.0,
-                fill: services::theme::get_color(ColorItemNames::HomotheticCenters, theme_mode),
+                fill,
                 stroke: egui::Stroke::NONE,
             }));
         }
@@ -42,7 +38,7 @@ pub fn draw_homothetic_centers(
             ui.painter().add(egui::Shape::Circle(CircleShape {
                 center: internal,
                 radius: 2.0,
-                fill: services::theme::get_color(ColorItemNames::HomotheticCenters, theme_mode),
+                fill,
                 stroke: egui::Stroke::NONE,
             }));
         }
@@ -53,7 +49,7 @@ pub fn draw_radical_center(
     ui: &mut egui::Ui,
     radical_center: egui::Pos2,
     condition: bool,
-    theme_mode: &ThemeMode,
+    fill: Color32,
 ) {
     if !condition {
         return;
@@ -61,7 +57,7 @@ pub fn draw_radical_center(
     ui.painter().add(egui::Shape::Circle(CircleShape {
         center: radical_center,
         radius: 4.0,
-        fill: services::theme::get_color(ColorItemNames::Radical, theme_mode),
+        fill,
         stroke: egui::Stroke::NONE,
     }));
 }
@@ -69,8 +65,8 @@ pub fn draw_radical_center(
 pub fn draw_inverse_poles(
     ui: &mut egui::Ui,
     poles_set: &Option<InversePoleSet>,
-    fill: egui::Color32,
     condition: bool,
+    fill: egui::Color32,
 ) {
     if !condition {
         return;
@@ -102,8 +98,8 @@ pub fn draw_inverse_poles(
 pub fn draw_apollonius_circles_pair(
     ui: &mut egui::Ui,
     circle_pair: &ApolloniusPair,
-    stroke: egui::Color32,
     condition: bool,
+    stroke: egui::Color32,
 ) {
     if !condition {
         return;

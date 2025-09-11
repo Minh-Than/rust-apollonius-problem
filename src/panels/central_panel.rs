@@ -102,67 +102,67 @@ pub fn get(app: &mut MyApp, ctx: &egui::Context) {
                 services::draw::draw_three_circles(
                     ui,
                     app.initial_circles.as_array(),
-                    &app.theme_mode,
+                    services::theme::get_color(ColorItemNames::InitialCircles, &app.theme_mode),
                 );
                 services::draw::draw_homothetic_centers(
                     ui,
                     &homothetic_set,
                     app.display_options.show_homothetic,
-                    &app.theme_mode,
+                    services::theme::get_color(ColorItemNames::HomotheticCenters, &app.theme_mode),
                 );
                 services::draw::draw_radical_center(
                     ui,
                     radical_center,
                     app.display_options.show_radical,
-                    &app.theme_mode,
+                    services::theme::get_color(ColorItemNames::Radical, &app.theme_mode),
                 );
                 services::draw::draw_inverse_poles(
                     ui,
                     &inv_pole_set_1,
-                    services::theme::get_color(ColorItemNames::InversePoles1, &app.theme_mode),
                     app.display_options.show_inverse_poles,
+                    services::theme::get_color(ColorItemNames::InversePoles1, &app.theme_mode),
                 );
                 services::draw::draw_inverse_poles(
                     ui,
                     &inv_pole_set_2,
-                    services::theme::get_color(ColorItemNames::InversePoles2, &app.theme_mode),
                     app.display_options.show_inverse_poles,
+                    services::theme::get_color(ColorItemNames::InversePoles2, &app.theme_mode),
                 );
                 services::draw::draw_inverse_poles(
                     ui,
                     &inv_pole_set_3,
-                    services::theme::get_color(ColorItemNames::InversePoles3, &app.theme_mode),
                     app.display_options.show_inverse_poles,
+                    services::theme::get_color(ColorItemNames::InversePoles3, &app.theme_mode),
                 );
                 services::draw::draw_inverse_poles(
                     ui,
                     &inv_pole_set_4,
-                    services::theme::get_color(ColorItemNames::InversePoles4, &app.theme_mode),
                     app.display_options.show_inverse_poles,
+                    services::theme::get_color(ColorItemNames::InversePoles4, &app.theme_mode),
                 );
                 services::draw::draw_apollonius_circles_pair(
                     ui,
                     &apollonius_pair_1,
-                    services::theme::get_color(ColorItemNames::InversePoles1, &app.theme_mode),
                     app.display_options.show_apollonius_circle_1,
+                    services::theme::get_color(ColorItemNames::InversePoles1, &app.theme_mode),
                 );
                 services::draw::draw_apollonius_circles_pair(
                     ui,
                     &apollonius_pair_2,
-                    services::theme::get_color(ColorItemNames::InversePoles2, &app.theme_mode),
                     app.display_options.show_apollonius_circle_2,
+                    services::theme::get_color(ColorItemNames::InversePoles2, &app.theme_mode),
                 );
                 services::draw::draw_apollonius_circles_pair(
                     ui,
                     &apollonius_pair_3,
-                    services::theme::get_color(ColorItemNames::InversePoles3, &app.theme_mode),
                     app.display_options.show_apollonius_circle_3,
+                    services::theme::get_color(ColorItemNames::InversePoles3, &app.theme_mode),
                 );
                 services::draw::draw_apollonius_circles_pair(
                     ui,
                     &apollonius_pair_4,
-                    services::theme::get_color(ColorItemNames::InversePoles4, &app.theme_mode),
                     app.display_options.show_apollonius_circle_4,
+                    services::theme::get_color(ColorItemNames::InversePoles4, &app.theme_mode),
                 );
             })
             .response;
