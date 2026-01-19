@@ -32,7 +32,7 @@ impl InversePoleSet {
         })
     }
 
-    pub fn new_special(circles: &[Circle], radical_center: Pos2) -> Option<Self> {
+    pub fn new_special(circles: &[Circle; 3], radical_center: Pos2) -> Option<Self> {
         let mut point_segment_pairs: Vec<PointSegmentPair> = Vec::new();
         for circle in circles {
             point_segment_pairs.push(PointSegmentPair {

@@ -15,4 +15,11 @@ impl ThemeMode {
     pub fn as_vec() -> Vec<Self> {
         vec![Self::Light, Self::Dark]
     }
+
+    pub fn get_theme_visuals(&self) -> egui::Visuals {
+        match self {
+            ThemeMode::Light => egui::Visuals::light(),
+            ThemeMode::Dark => egui::Visuals::dark(),
+        }
+    }
 }
